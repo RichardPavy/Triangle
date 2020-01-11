@@ -1,4 +1,4 @@
-namespace LevelDB
+namespace LevelDB.Iterators
 {
     using System;
     using System.Collections;
@@ -14,7 +14,7 @@ namespace LevelDB
     /// If two threads share this object, they must protect access to it using
     /// their own locking protocol.
     /// </remarks>
-    public sealed class Iterator : IIterator<Iterator>
+    internal sealed class Iterator : IIterator
     {
         /// <summary>
         /// Native handle
@@ -92,7 +92,7 @@ namespace LevelDB
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern void leveldb_iter_destroy(IntPtr iter);
 
-        public Iterator SeekToFirst()
+        public IIterator SeekToFirst()
         {
             leveldb_iter_seek_to_first(Handle);
             return this;
@@ -101,7 +101,7 @@ namespace LevelDB
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern void leveldb_iter_seek_to_first(IntPtr iter);
 
-        public Iterator SeekToLast()
+        public IIterator SeekToLast()
         {
             leveldb_iter_seek_to_last(Handle);
             return this;
@@ -110,7 +110,7 @@ namespace LevelDB
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern void leveldb_iter_seek_to_last(IntPtr iter);
 
-        public Iterator Seek(string key)
+        public IIterator Seek(string key)
         {
             leveldb_iter_seek(Handle, key, Native.GetStringLength(key));
             return this;
@@ -154,8 +154,9 @@ namespace LevelDB
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern void leveldb_iter_prev(IntPtr iter);
 
-        public ReverseIterator Reverse() => new ReverseIterator(this);
-        IIterator IIterator.Reverse() => Reverse();
+        public IIterator Reverse() => new ReverseIterator(this);
+
+        public IIterator Range(string from, string to) => new RangeIterator(this, from, to);
 
         public void Dispose()
         {

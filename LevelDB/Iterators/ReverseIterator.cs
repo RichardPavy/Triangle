@@ -1,14 +1,35 @@
-namespace LevelDB
+namespace LevelDB.Iterators
 {
     /// <summary>
-    /// DB Iterator -- same as <see cref="Iterator"/>, but reverse.
+    /// Reverse iterator.
     /// </summary>
-    public sealed class ReverseIterator : AbstractReverseIterator<ReverseIterator, Iterator>
+    internal sealed class ReverseIterator : DelegateIterator
     {
-        internal ReverseIterator(Iterator forwardIterator) : base(forwardIterator)
+        internal ReverseIterator(IIterator forwardIterator) : base(forwardIterator)
         {
         }
 
-        protected override ReverseIterator Self => this;
+        public override IIterator Seek(string key)
+        {
+            delegateIterator.Seek(key);
+            return this;
+        }
+
+        public override IIterator SeekToFirst()
+        {
+            delegateIterator.SeekToLast();
+            return this;
+        }
+
+        public override IIterator SeekToLast()
+        {
+            delegateIterator.SeekToFirst();
+            return this;
+        }
+
+        public override bool MoveNext() => delegateIterator.MovePrevious();
+        public override bool MovePrevious() => delegateIterator.MoveNext();
+
+        public override IIterator Reverse() => delegateIterator;
     }
 }

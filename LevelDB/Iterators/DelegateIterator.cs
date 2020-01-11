@@ -1,16 +1,13 @@
-namespace LevelDB
+namespace LevelDB.Iterators
 {
     using System.Collections;
     using System.Collections.Generic;
 
-    public abstract class DelegateIterator<TSelfIterator, TReverseIterator, TDelegateIterator> : IIterator<TSelfIterator>
-        where TSelfIterator : IIterator<TSelfIterator>
-        where TReverseIterator : IIterator<TReverseIterator>
-        where TDelegateIterator : IIterator<TDelegateIterator>
+    internal abstract class DelegateIterator : IIterator
     {
-        protected readonly TDelegateIterator delegateIterator;
+        protected readonly IIterator delegateIterator;
 
-        internal DelegateIterator(TDelegateIterator delegateIterator)
+        internal DelegateIterator(IIterator delegateIterator)
         {
             this.delegateIterator = delegateIterator;
         }
@@ -22,13 +19,14 @@ namespace LevelDB
         object IEnumerator.Current => delegateIterator.Current;
         public void Reset() => delegateIterator.Reset();
         public void Dispose() => delegateIterator.Dispose();
-        IIterator IIterator.Reverse() => Reverse();
+
+        public virtual IIterator Reverse() => new ReverseIterator(this);
+        public virtual IIterator Range(string from, string to) => new RangeIterator(this, from, to);
 
         public abstract bool MoveNext();
         public abstract bool MovePrevious();
-        public abstract TReverseIterator Reverse();
-        public abstract TSelfIterator Seek(string key);
-        public abstract TSelfIterator SeekToFirst();
-        public abstract TSelfIterator SeekToLast();
+        public abstract IIterator Seek(string key);
+        public abstract IIterator SeekToFirst();
+        public abstract IIterator SeekToLast();
     }
 }

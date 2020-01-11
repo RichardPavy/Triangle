@@ -2,6 +2,7 @@ namespace LevelDB
 {
     using System;
     using System.Runtime.InteropServices;
+    using LevelDB.Iterables;
 
     public class DB : IDisposable
     {
@@ -160,15 +161,15 @@ namespace LevelDB
             out UIntPtr valueLength,
             out IntPtr errorPtr);
 
-        public Iterator GetIterator()
+        public IIterable GetIterable()
         {
-            return GetIterator(new ReadOptions());
+            return GetIterable(new ReadOptions());
         }
 
-        public Iterator GetIterator(ReadOptions readOptions)
+        public IIterable GetIterable(ReadOptions readOptions)
         {
             CheckDisposed();
-            return new Iterator(this, readOptions);
+            return new Iterable(this, readOptions);
         }
 
         public Snapshot CreateSnapshot()
