@@ -14,16 +14,48 @@
             {
                 db.Put("z", "26").Put("m", "13").Put("b", "2");
                 db.Put("c", "3").Put("s", "19").Put("t", "20").Put("u", "21");
+
+                foreach (var kv in db.GetIterable())
+                {
+                    Console.WriteLine($"key = {kv.Key} => value = {kv.Value}");
+                }
+                Console.WriteLine("All!");
+                Console.WriteLine("");
+
+                foreach (var kv in db.GetIterable().Reverse())
+                {
+                    Console.WriteLine($"key = {kv.Key} => value = {kv.Value}");
+                }
+                Console.WriteLine("Reverse!");
+                Console.WriteLine("");
+
+                foreach (var kv in db.GetIterable().Range("c", "t"))
+                {
+                    Console.WriteLine($"key = {kv.Key} => value = {kv.Value}");
+                }
+                Console.WriteLine("Range!");
+                Console.WriteLine("");
+
+                foreach (var kv in db.GetIterable().Range("c", "c"))
+                {
+                    Console.WriteLine($"key = {kv.Key} => value = {kv.Value}");
+                }
+                Console.WriteLine("Empty Range!");
+                Console.WriteLine("");
+
                 foreach (var kv in db.GetIterable().Range("c", "t").Reverse())
                 {
                     Console.WriteLine($"key = {kv.Key} => value = {kv.Value}");
                 }
-                Console.WriteLine("Done!");
-                foreach (var kv in db.GetIterable().Reverse().Range("c", "t"))
+                Console.WriteLine("Range Reverse!");
+                Console.WriteLine("");
+
+                foreach (var kv in db.GetIterable().Reverse().Range("t", "c"))
                 {
                     Console.WriteLine($"key = {kv.Key} => value = {kv.Value}");
                 }
-                Console.WriteLine("Done!");
+                Console.WriteLine("Reverse Range!");
+                Console.WriteLine("");
             }
         }
     }

@@ -7,9 +7,9 @@ namespace LevelDB.Iterables
     /// </summary>
     internal sealed class ReverseIterable : AbstractIterable
     {
-        private readonly IIterable iterable;
+        private readonly AbstractIterable iterable;
 
-        internal ReverseIterable(IIterable iterable)
+        internal ReverseIterable(AbstractIterable iterable)
         {
             this.iterable = iterable;
         }

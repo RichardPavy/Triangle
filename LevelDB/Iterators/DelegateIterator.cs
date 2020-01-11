@@ -1,32 +1,29 @@
 namespace LevelDB.Iterators
 {
-    using System.Collections;
-    using System.Collections.Generic;
-
-    internal abstract class DelegateIterator : IIterator
+    internal abstract class DelegateIterator : AbstractIterator
     {
-        protected readonly IIterator delegateIterator;
+        protected readonly AbstractIterator delegateIterator;
 
-        internal DelegateIterator(IIterator delegateIterator)
+        internal DelegateIterator(AbstractIterator delegateIterator)
         {
             this.delegateIterator = delegateIterator;
         }
 
-        public bool IsValid => delegateIterator.IsValid;
-        public string Key => delegateIterator.Key;
-        public string Value => delegateIterator.Value;
-        public KeyValuePair<string, string> Current => delegateIterator.Current;
-        object IEnumerator.Current => delegateIterator.Current;
-        public void Reset() => delegateIterator.Reset();
-        public void Dispose() => delegateIterator.Dispose();
+        public override string Key => delegateIterator.Key;
+        public override string Value => delegateIterator.Value;
 
-        public virtual IIterator Reverse() => new ReverseIterator(this);
-        public virtual IIterator Range(string from, string to) => new RangeIterator(this, from, to);
+        public override IIterator Reverse() => delegateIterator.Reverse();
+        public override IIterator Range(string from, string to) => delegateIterator.Range(from, to);
+        public override void Dispose() => delegateIterator.Dispose();
 
-        public abstract bool MoveNext();
-        public abstract bool MovePrevious();
-        public abstract IIterator Seek(string key);
-        public abstract IIterator SeekToFirst();
-        public abstract IIterator SeekToLast();
+        internal override bool IsValid => delegateIterator.IsValid;
+
+        internal override void Next() => delegateIterator.Next();
+        internal override void Previous() => delegateIterator.Previous();
+
+        internal override IIterator Seek(string key) => delegateIterator.Seek(key);
+        internal override IIterator SeekToFirst() => delegateIterator.SeekToFirst();
+        internal override IIterator SeekToLast() => delegateIterator.SeekToLast();
+        internal override int CompareKeys(string a, string b) => delegateIterator.CompareKeys(a, b);
     }
 }

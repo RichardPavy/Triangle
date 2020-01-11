@@ -3,62 +3,65 @@ namespace LevelDB.Iterators
     using System;
 
     /// <summary>
-    /// DB Iterator -- same as <see cref="Iterator"/>, but reverse.
+    /// A DB iterator that loops through a range of keys.
     /// </summary>
     internal sealed class RangeIterator : DelegateIterator
     {
         private readonly string from;
         private readonly string to;
 
-        public RangeIterator(IIterator delegateIterator, string from, string to) : base(delegateIterator)
+        internal override bool IsValid
         {
-            if (from.CompareTo(to) > 0)
+            get
             {
-                throw new ArgumentException($"Invalid range ['{from}' - {to}]");
+                string key = Key;
+                return CompareKeys(this.from, key) <= 0
+                    && CompareKeys(key, this.to) < 0
+                    && base.IsValid;
+            }
+        }
+
+        public RangeIterator(AbstractIterator delegateIterator, string from, string to) : base(delegateIterator)
+        {
+            if (CompareKeys(from, to) > 0)
+            {
+                throw new ArgumentException($"Invalid range ['{from}' - '{to}']");
             }
             this.from = from;
             this.to = to;
         }
 
-        public override bool MoveNext()
+        internal override IIterator SeekToFirst()
         {
-            return delegateIterator.MoveNext() && Key.CompareTo(this.to) < 0;
+            Seek(this.from);
+            return this;
         }
 
-        public override bool MovePrevious()
+        internal override IIterator SeekToLast()
         {
-            return delegateIterator.MovePrevious() && this.from.CompareTo(Key) <= 0;
+            Seek(this.to);
+            return this;
         }
 
-        public override IIterator Seek(string key)
+        internal override IIterator Seek(string key)
         {
-            if (this.from.CompareTo(key) <= 0 && key.CompareTo(this.to) <= 0)
+            if (CompareKeys(this.from, key) <= 0 && CompareKeys(key, this.to) <= 0)
             {
-                delegateIterator.Seek(key);
+                base.Seek(key);
                 return this;
             }
-            throw new ArgumentOutOfRangeException($"key '{key}' is not between ['{this.from}' - {this.to}]");
+            throw new ArgumentOutOfRangeException($"key '{key}' is not between ['{this.from}' - '{this.to}']");
         }
 
-        public override IIterator SeekToFirst()
-        {
-            delegateIterator.Seek(this.from);
-            return this;
-        }
-
-        public override IIterator SeekToLast()
-        {
-            delegateIterator.Seek(this.to);
-            return this;
-        }
+        public override IIterator Reverse() => base.Reverse().Range(this.to, this.from);
 
         public override IIterator Range(string from, string to)
         {
-            if (this.from.CompareTo(from) <= 0 && to.CompareTo(this.to) <= 0)
+            if (CompareKeys(this.from, from) <= 0 && CompareKeys(to, this.to) <= 0)
             {
-                return new RangeIterator(delegateIterator, from, to);
+                return base.Range(from, to);
             }
-            throw new ArgumentOutOfRangeException($"['{from}' - {to}] is not included in ['{this.from}' - {this.to}]");
+            throw new ArgumentOutOfRangeException($"['{from}' - '{to}'] is not included in ['{this.from}' - '{this.to}']");
         }
     }
 }

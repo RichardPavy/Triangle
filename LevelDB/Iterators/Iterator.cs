@@ -1,8 +1,6 @@
 namespace LevelDB.Iterators
 {
     using System;
-    using System.Collections;
-    using System.Collections.Generic;
     using System.Runtime.InteropServices;
 
     /// <summary>
@@ -14,7 +12,7 @@ namespace LevelDB.Iterators
     /// If two threads share this object, they must protect access to it using
     /// their own locking protocol.
     /// </remarks>
-    internal sealed class Iterator : IIterator
+    internal sealed class Iterator : AbstractIterator
     {
         /// <summary>
         /// Native handle
@@ -23,14 +21,13 @@ namespace LevelDB.Iterators
 
         private DB DB { get; set; }
         private ReadOptions ReadOptions { get; set; }
-        private bool IsFirstMove { get; set; }
 
-        public bool IsValid => leveldb_iter_valid(Handle) != 0;
+        internal override bool IsValid => leveldb_iter_valid(Handle) != 0;
 
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern byte leveldb_iter_valid(IntPtr iter);
 
-        public string Key
+        public override string Key
         {
             get
             {
@@ -48,7 +45,7 @@ namespace LevelDB.Iterators
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr leveldb_iter_key(IntPtr iter, out UIntPtr keyLength);
 
-        public string Value
+        public override string Value
         {
             get
             {
@@ -66,16 +63,12 @@ namespace LevelDB.Iterators
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr leveldb_iter_value(IntPtr iter, out UIntPtr valueLength);
 
-        object IEnumerator.Current => Current;
-        public KeyValuePair<string, string> Current => new KeyValuePair<string, string>(Key, Value);
-
         internal Iterator(DB db, ReadOptions readOptions)
         {
             DB = db;
             // keep reference so it doesn't get GCed
             ReadOptions = readOptions;
             Handle = leveldb_create_iterator(db.Handle, ReadOptions.Handle);
-            IsFirstMove = true;
         }
 
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
@@ -89,11 +82,15 @@ namespace LevelDB.Iterators
             }
         }
 
+        public override IIterator Reverse() => new ReverseIterator(this);
+        public override IIterator Range(string from, string to) => new RangeIterator(this, from, to);
+
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern void leveldb_iter_destroy(IntPtr iter);
 
-        public IIterator SeekToFirst()
+        internal override IIterator SeekToFirst()
         {
+            Console.WriteLine("Iterator.SeekToFirst()");
             leveldb_iter_seek_to_first(Handle);
             return this;
         }
@@ -101,8 +98,9 @@ namespace LevelDB.Iterators
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern void leveldb_iter_seek_to_first(IntPtr iter);
 
-        public IIterator SeekToLast()
+        internal override IIterator SeekToLast()
         {
+            Console.WriteLine("Iterator.SeekToLast()");
             leveldb_iter_seek_to_last(Handle);
             return this;
         }
@@ -110,8 +108,9 @@ namespace LevelDB.Iterators
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern void leveldb_iter_seek_to_last(IntPtr iter);
 
-        public IIterator Seek(string key)
+        internal override IIterator Seek(string key)
         {
+            Console.WriteLine($"Iterator.Seek({key})");
             leveldb_iter_seek(Handle, key, Native.GetStringLength(key));
             return this;
         }
@@ -119,33 +118,14 @@ namespace LevelDB.Iterators
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern void leveldb_iter_seek(IntPtr iter, string key, UIntPtr keyLength);
 
-        public void Reset()
+        internal override void Next()
         {
-            IsFirstMove = true;
-        }
-
-        public bool MoveNext()
-        {
-            if (IsFirstMove)
-            {
-                SeekToFirst();
-                IsFirstMove = false;
-                return IsValid;
-            }
             leveldb_iter_next(Handle);
-            return IsValid;
         }
 
-        public bool MovePrevious()
+        internal override void Previous()
         {
-            if (IsFirstMove)
-            {
-                SeekToLast();
-                IsFirstMove = false;
-                return IsValid;
-            }
             leveldb_iter_prev(Handle);
-            return IsValid;
         }
 
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
@@ -153,14 +133,5 @@ namespace LevelDB.Iterators
 
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern void leveldb_iter_prev(IntPtr iter);
-
-        public IIterator Reverse() => new ReverseIterator(this);
-
-        public IIterator Range(string from, string to) => new RangeIterator(this, from, to);
-
-        public void Dispose()
-        {
-            // ~Iterator() takes already care
-        }
     }
 }

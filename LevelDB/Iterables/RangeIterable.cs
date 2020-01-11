@@ -7,11 +7,11 @@ namespace LevelDB.Iterables
     /// </summary>
     internal sealed class RangeIterable : AbstractIterable
     {
-        private readonly IIterable iterable;
+        private readonly AbstractIterable iterable;
         private readonly string from;
         private readonly string to;
 
-        internal RangeIterable(IIterable iterable, string from, string to)
+        internal RangeIterable(AbstractIterable iterable, string from, string to)
         {
             this.iterable = iterable;
             this.from = from;
