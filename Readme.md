@@ -1,3 +1,3 @@
 # Triangle
 
-![](https://github.com/RichardPavy/Triangle/workflows/Greet%20Everyone/badge.svg)
+Status: ![](https://github.com/RichardPavy/Triangle/workflows/.NET%20Core/badge.svg)
