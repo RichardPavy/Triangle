@@ -14,7 +14,7 @@ jobs:
         with:
           dotnet-version: 3.1.100
       - name: Install LevelDB
-        run: sudo apt-get update && sudo apt-get install leveldb
+        run: sudo apt-get update && sudo apt-get install libleveldb-dev
       - name: Build with dotnet
         run: dotnet build --configuration Release
       - name: Run Program
