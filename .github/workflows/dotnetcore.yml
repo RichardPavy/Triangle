@@ -17,8 +17,5 @@ jobs:
         run: sudo apt-get update && sudo apt-get install leveldb
       - name: Build with dotnet
         run: dotnet build --configuration Release
-  test:
-    needs: build
-    steps:
       - name: Run Program
         run: dotnet run
