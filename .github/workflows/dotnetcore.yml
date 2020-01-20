@@ -17,5 +17,5 @@ jobs:
         run: sudo apt-get update && sudo apt-get install libleveldb-dev
       - name: Build with dotnet
         run: dotnet build --configuration Release
-      - name: Run Program
-        run: dotnet run
+      - name: Run unit tests
+        run: dotnet test

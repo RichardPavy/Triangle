@@ -90,7 +90,6 @@ namespace LevelDB.Iterators
 
         internal override IIterator SeekToFirst()
         {
-            Console.WriteLine("Iterator.SeekToFirst()");
             leveldb_iter_seek_to_first(Handle);
             return this;
         }
@@ -100,7 +99,6 @@ namespace LevelDB.Iterators
 
         internal override IIterator SeekToLast()
         {
-            Console.WriteLine("Iterator.SeekToLast()");
             leveldb_iter_seek_to_last(Handle);
             return this;
         }
@@ -110,7 +108,6 @@ namespace LevelDB.Iterators
 
         internal override IIterator Seek(string key)
         {
-            Console.WriteLine($"Iterator.Seek({key})");
             leveldb_iter_seek(Handle, key, Native.GetStringLength(key));
             return this;
         }
