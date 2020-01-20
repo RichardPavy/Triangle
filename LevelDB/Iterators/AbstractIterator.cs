@@ -58,5 +58,7 @@ namespace LevelDB.Iterators
         KeyValuePair<byte[], byte[]> IEnumerator<KeyValuePair<byte[], byte[]>>.Current => Current;
         IIterator<byte[], byte[]> IIterator<byte[], byte[]>.Reverse() => Reverse();
         IIterator<byte[], byte[]> IIterator<byte[], byte[]>.Range(byte[] from, byte[] to) => Range(from, to);
+
+        public IIterator<TKey, TValue> Cast<TKey, TValue>() => new Iterator<TKey, TValue>(this);
     }
 }

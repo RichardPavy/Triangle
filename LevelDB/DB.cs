@@ -62,8 +62,8 @@ namespace LevelDB
             IntPtr errorPtr;
             leveldb_put(
                 Handle, writeOptions.Handle,
-                key, new UIntPtr((uint) key.Length),
-                value, new UIntPtr((uint) value.Length),
+                key, new UIntPtr((uint)key.Length),
+                value, new UIntPtr((uint)value.Length),
                 out errorPtr);
             Native.CheckError(errorPtr);
             return this;
@@ -89,7 +89,7 @@ namespace LevelDB
         {
             CheckDisposed();
             IntPtr errorPtr;
-            leveldb_delete(Handle, writeOptions.Handle, key, new UIntPtr((uint) key.Length), out errorPtr);
+            leveldb_delete(Handle, writeOptions.Handle, key, new UIntPtr((uint)key.Length), out errorPtr);
             Native.CheckError(errorPtr);
             return this;
         }
@@ -135,7 +135,7 @@ namespace LevelDB
             IntPtr errorPtr;
             var valuePtr = leveldb_get(
                 Handle, readOptions.Handle,
-                key, new UIntPtr((uint) key.Length),
+                key, new UIntPtr((uint)key.Length),
                 out valueLength,
                 out errorPtr);
             Native.CheckError(errorPtr);
@@ -204,8 +204,8 @@ namespace LevelDB
             CheckDisposed();
             leveldb_compact_range(
                 Handle,
-                startKey, new UIntPtr((uint) startKey.Length),
-                limitKey, new UIntPtr((uint) limitKey.Length));
+                startKey, new UIntPtr((uint)startKey.Length),
+                limitKey, new UIntPtr((uint)limitKey.Length));
             return this;
         }
 
@@ -255,6 +255,110 @@ namespace LevelDB
             {
                 throw new ObjectDisposedException(this.GetType().Name);
             }
+        }
+
+        public DB<TKey, TValue> Cast<TKey, TValue>() => new DB<TKey, TValue>(this);
+    }
+
+    public class DB<TKey, TValue> : IDisposable
+    {
+        private readonly DB db;
+        private readonly Marshaller<TKey> keyMarshaller = Marshallers<TKey>.Instance;
+        private readonly Marshaller<TValue> valueMarshaller = Marshallers<TValue>.Instance;
+
+        internal DB(DB db)
+        {
+            this.db = db;
+        }
+
+        public void Dispose() => db.Dispose();
+
+        public TValue this[TKey key]
+        {
+            get
+            {
+                return Get(key);
+            }
+            set
+            {
+                Put(key, value);
+            }
+        }
+
+        public DB<TKey, TValue> Put(TKey key, TValue value)
+        {
+            db.Put(keyMarshaller.ToBytes(key), valueMarshaller.ToBytes(value));
+            return this;
+        }
+
+        public DB<TKey, TValue> Put(WriteOptions writeOptions, TKey key, TValue value)
+        {
+            db.Put(writeOptions, keyMarshaller.ToBytes(key), valueMarshaller.ToBytes(value));
+            return this;
+        }
+
+        public DB<TKey, TValue> Delete(TKey key)
+        {
+            db.Delete(keyMarshaller.ToBytes(key));
+            return this;
+        }
+
+        public DB<TKey, TValue> Delete(WriteOptions writeOptions, TKey key)
+        {
+            db.Delete(writeOptions, keyMarshaller.ToBytes(key));
+            return this;
+        }
+
+        /*
+        public void Write(WriteOptions writeOptions, WriteBatch writeBatch)
+        {
+        }
+
+        public void Write(WriteBatch writeBatch)
+        {
+        }
+        */
+
+        public TValue Get(TKey key)
+        {
+            return valueMarshaller.FromBytes(db.Get(keyMarshaller.ToBytes(key)));
+        }
+
+        public TValue Get(ReadOptions readOptions, TKey key)
+        {
+            return valueMarshaller.FromBytes(db.Get(readOptions, keyMarshaller.ToBytes(key)));
+        }
+
+        public IIterable<TKey, TValue> GetIterable()
+        {
+            return db.GetIterable().Cast<TKey, TValue>();
+        }
+
+        public IIterable<TKey, TValue> GetIterable(ReadOptions readOptions)
+        {
+            return db.GetIterable(readOptions).Cast<TKey, TValue>();
+        }
+
+        public Snapshot CreateSnapshot()
+        {
+            return db.CreateSnapshot();
+        }
+
+        public DB<TKey, TValue> Compact()
+        {
+            db.Compact();
+            return this;
+        }
+
+        public DB<TKey, TValue> CompactRange(TKey startKey, TKey limitKey)
+        {
+            db.CompactRange(keyMarshaller.ToBytes(startKey), keyMarshaller.ToBytes(limitKey));
+            return this;
+        }
+
+        public string GetProperty(string property)
+        {
+            return db.GetProperty(property);
         }
     }
 }

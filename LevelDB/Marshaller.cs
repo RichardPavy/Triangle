@@ -1,7 +1,29 @@
-using System.Text;
-
-namespace LevelDB.Iterators
+namespace LevelDB
 {
+    using System;
+    using System.Text;
+
+    internal abstract class Marshallers<T>
+    {
+        internal static readonly Marshaller<T> Instance = Get();
+
+        private static Marshaller<T> Get()
+        {
+            if (typeof(T) == typeof(string))
+            {
+                return new StringMarshaller() as Marshaller<T>;
+            }
+
+            if (typeof(T) == typeof(byte[]))
+            {
+                return new NoopMarshaller() as Marshaller<T>;
+            }
+
+            throw new InvalidOperationException(
+                $"Unable to resolve the marshaller for {typeof(T)}");
+        }
+    }
+
     internal abstract class Marshaller<T>
     {
         internal abstract byte[] ToBytes(T value);
