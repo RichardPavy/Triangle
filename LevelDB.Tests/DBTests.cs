@@ -18,6 +18,18 @@ namespace LevelDB.Tests
         }
 
         [Fact]
+        public void Get()
+        {
+            using (LevelDB.DB db = GetTestDb())
+            {
+                Assert.Equal("1", db.Get("a"));
+                Assert.Equal("26",db.Get("z"));
+                Assert.Equal("1", db["a"]);
+                Assert.Equal("26", db["z"]);
+            }
+        }
+
+        [Fact]
         public void GetIterableReverse()
         {
             using (LevelDB.DB db = GetTestDb())

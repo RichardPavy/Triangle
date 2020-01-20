@@ -6,12 +6,12 @@ namespace LevelDB.Iterables
     /// <summary>
     /// Represents data in a DB.
     /// </summary>
-    public interface IIterable : IEnumerable<KeyValuePair<string, string>>
+    public interface IIterable : IEnumerable<KeyValuePair<byte[], byte[]>>
     {
         IIterator GetIterator();
 
         IIterable Reverse();
 
-        IIterable Range(string from, string to);
+        IIterable Range(byte[] from, byte[] to);
     }
 }

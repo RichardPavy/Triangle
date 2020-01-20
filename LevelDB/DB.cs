@@ -39,7 +39,7 @@ namespace LevelDB
             }
         }
 
-        public string this[string key]
+        public byte[] this[byte[] key]
         {
             get
             {
@@ -51,21 +51,19 @@ namespace LevelDB
             }
         }
 
-        public DB Put(string key, string value)
+        public DB Put(byte[] key, byte[] value)
         {
             return Put(new WriteOptions(), key, value);
         }
 
-        public DB Put(WriteOptions writeOptions, string key, string value)
+        public DB Put(WriteOptions writeOptions, byte[] key, byte[] value)
         {
             CheckDisposed();
             IntPtr errorPtr;
-            var keyLength = Native.GetStringLength(key);
-            var valueLength = Native.GetStringLength(value);
             leveldb_put(
                 Handle, writeOptions.Handle,
-                key, keyLength,
-                value, valueLength,
+                key, new UIntPtr((uint) key.Length),
+                value, new UIntPtr((uint) value.Length),
                 out errorPtr);
             Native.CheckError(errorPtr);
             return this;
@@ -75,24 +73,23 @@ namespace LevelDB
         private static extern void leveldb_put(
             IntPtr handle,
             IntPtr writeOptions,
-            string key,
+            byte[] key,
             UIntPtr keyLength,
-            string value,
+            byte[] value,
             UIntPtr valueLength,
             out IntPtr errorPtr);
 
 
-        public DB Delete(string key)
+        public DB Delete(byte[] key)
         {
             return Delete(new WriteOptions(), key);
         }
 
-        public DB Delete(WriteOptions writeOptions, string key)
+        public DB Delete(WriteOptions writeOptions, byte[] key)
         {
             CheckDisposed();
             IntPtr errorPtr;
-            var keyLength = Native.GetStringLength(key);
-            leveldb_delete(Handle, writeOptions.Handle, key, keyLength, out errorPtr);
+            leveldb_delete(Handle, writeOptions.Handle, key, new UIntPtr((uint) key.Length), out errorPtr);
             Native.CheckError(errorPtr);
             return this;
         }
@@ -101,7 +98,7 @@ namespace LevelDB
         private static extern void leveldb_delete(
             IntPtr handle,
             IntPtr writeOptions,
-            string key,
+            byte[] key,
             UIntPtr keylen,
             out IntPtr errorPtr);
 
@@ -126,20 +123,19 @@ namespace LevelDB
                 }
         */
 
-        public string Get(string key)
+        public byte[] Get(byte[] key)
         {
             return Get(new ReadOptions(), key);
         }
 
-        public string Get(ReadOptions readOptions, string key)
+        public byte[] Get(ReadOptions readOptions, byte[] key)
         {
             CheckDisposed();
             UIntPtr valueLength;
             IntPtr errorPtr;
-            var keyLength = Native.GetStringLength(key);
             var valuePtr = leveldb_get(
                 Handle, readOptions.Handle,
-                key, keyLength,
+                key, new UIntPtr((uint) key.Length),
                 out valueLength,
                 out errorPtr);
             Native.CheckError(errorPtr);
@@ -147,7 +143,7 @@ namespace LevelDB
             {
                 return null;
             }
-            var value = Marshal.PtrToStringAnsi(valuePtr, (int)valueLength);
+            var value = Native.GetBytes(valuePtr, (int)valueLength);
             Native.leveldb_free(valuePtr);
             return value;
         }
@@ -156,7 +152,7 @@ namespace LevelDB
         private static extern IntPtr leveldb_get(
             IntPtr handle,
             IntPtr readOptions,
-            string key,
+            byte[] key,
             UIntPtr keyLength,
             out UIntPtr valueLength,
             out IntPtr errorPtr);
@@ -203,21 +199,21 @@ namespace LevelDB
         /// <param name="limitKey">
         /// null is treated as a key after all keys in the database
         /// </param>
-        public DB CompactRange(string startKey, string limitKey)
+        public DB CompactRange(byte[] startKey, byte[] limitKey)
         {
             CheckDisposed();
             leveldb_compact_range(
                 Handle,
-                startKey, Native.GetStringLength(startKey),
-                limitKey, Native.GetStringLength(limitKey));
+                startKey, new UIntPtr((uint) startKey.Length),
+                limitKey, new UIntPtr((uint) limitKey.Length));
             return this;
         }
 
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern void leveldb_compact_range(
             IntPtr handle,
-            string startKey, UIntPtr startKeyLen,
-            string limitKey, UIntPtr limitKeyLen);
+            byte[] startKey, UIntPtr startKeyLen,
+            byte[] limitKey, UIntPtr limitKeyLen);
 
         /// <summary>
         /// DB implementations can export properties about their state via this

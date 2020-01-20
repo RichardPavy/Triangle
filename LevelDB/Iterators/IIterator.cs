@@ -5,14 +5,20 @@ namespace LevelDB.Iterators
     /// <summary>
     /// DB Iterator interface.
     /// </summary>
-    public interface IIterator : IEnumerator<KeyValuePair<string, string>>
+    public interface IIterator<TKey, TValue> : IEnumerator<KeyValuePair<TKey, TValue>>
     {
-        string Key { get; }
+        TKey Key { get; }
 
-        string Value { get; }
+        TValue Value { get; }
 
-        IIterator Reverse();
+        IIterator<TKey, TValue> Reverse();
 
-        IIterator Range(string from, string to);
+        IIterator<TKey, TValue> Range(TKey from, TKey to);
+    }
+
+    public interface IIterator : IIterator<byte[], byte[]>
+    {
+        new IIterator Reverse();
+        new IIterator Range(byte[] from, byte[] to);
     }
 }

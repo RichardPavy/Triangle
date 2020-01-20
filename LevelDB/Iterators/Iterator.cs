@@ -1,6 +1,8 @@
 namespace LevelDB.Iterators
 {
     using System;
+    using System.Collections;
+    using System.Collections.Generic;
     using System.Runtime.InteropServices;
 
     /// <summary>
@@ -27,36 +29,26 @@ namespace LevelDB.Iterators
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern byte leveldb_iter_valid(IntPtr iter);
 
-        public override string Key
+        public override byte[] Key
         {
             get
             {
                 UIntPtr keyLength;
                 var keyPtr = leveldb_iter_key(Handle, out keyLength);
-                if (keyPtr == IntPtr.Zero || keyLength == UIntPtr.Zero)
-                {
-                    return null;
-                }
-                var key = Marshal.PtrToStringAnsi(keyPtr, (int)keyLength);
-                return key;
+                return Native.GetBytes(keyPtr, (int)keyLength);
             }
         }
 
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr leveldb_iter_key(IntPtr iter, out UIntPtr keyLength);
 
-        public override string Value
+        public override byte[] Value
         {
             get
             {
                 UIntPtr valueLength;
                 var valuePtr = leveldb_iter_value(Handle, out valueLength);
-                if (valuePtr == IntPtr.Zero || valueLength == UIntPtr.Zero)
-                {
-                    return null;
-                }
-                var value = Marshal.PtrToStringAnsi(valuePtr, (int)valueLength);
-                return value;
+                return Native.GetBytes(valuePtr, (int)valueLength);
             }
         }
 
@@ -83,7 +75,7 @@ namespace LevelDB.Iterators
         }
 
         public override IIterator Reverse() => new ReverseIterator(this);
-        public override IIterator Range(string from, string to) => new RangeIterator(this, from, to);
+        public override IIterator Range(byte[] from, byte[] to) => new RangeIterator(this, from, to);
 
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern void leveldb_iter_destroy(IntPtr iter);
@@ -106,14 +98,14 @@ namespace LevelDB.Iterators
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern void leveldb_iter_seek_to_last(IntPtr iter);
 
-        internal override IIterator Seek(string key)
+        internal override IIterator Seek(byte[] key)
         {
-            leveldb_iter_seek(Handle, key, Native.GetStringLength(key));
+            leveldb_iter_seek(Handle, key, new UIntPtr((uint)key.Length));
             return this;
         }
 
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
-        private static extern void leveldb_iter_seek(IntPtr iter, string key, UIntPtr keyLength);
+        private static extern void leveldb_iter_seek(IntPtr iter, byte[] key, UIntPtr keyLength);
 
         internal override void Next()
         {
@@ -130,5 +122,30 @@ namespace LevelDB.Iterators
 
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern void leveldb_iter_prev(IntPtr iter);
+    }
+
+    internal sealed class Iterator<TKey, TValue> : IIterator<TKey, TValue>
+    {
+        private readonly Iterator delegateIterator;
+        private readonly Marshaller<TKey> keyMarshaller;
+        private readonly Marshaller<TValue> valueMarshaller;
+
+        public TKey Key => keyMarshaller.FromBytes(delegateIterator.Key);
+        public TValue Value => valueMarshaller.FromBytes(delegateIterator.Value);
+        public KeyValuePair<TKey, TValue> Current => new KeyValuePair<TKey, TValue>(Key, Value);
+        object IEnumerator.Current => Current;
+        public void Dispose() => delegateIterator.Dispose();
+        public bool MoveNext() => delegateIterator.MoveNext();
+        public void Reset() => delegateIterator.Reset();
+
+        public IIterator Range(TKey from, TKey to)
+        {
+            return new Iterator<TKey, TValue>(
+                delegateIterator.Range(
+                    keyMarshaller.ToBytes(from),
+                    keyMarshaller.ToBytes(to)),
+                keyMarshaller,
+                valueMarshaller);
+        }
     }
 }

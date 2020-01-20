@@ -34,16 +34,7 @@ namespace LevelDB
             throw new ApplicationException(errorMessage);
         }
 
-        internal static UIntPtr GetStringLength(string value)
-        {
-            if (value == null || value.Length == 0)
-            {
-                return UIntPtr.Zero;
-            }
-            return new UIntPtr((uint)Encoding.UTF8.GetByteCount(value));
-        }
-
-        internal static string GetAndReleaseString(IntPtr ptr)
+        private static string GetAndReleaseString(IntPtr ptr)
         {
             if (ptr == IntPtr.Zero)
             {
@@ -53,6 +44,18 @@ namespace LevelDB
             var str = Marshal.PtrToStringAnsi(ptr);
             leveldb_free(ptr);
             return str;
+        }
+
+        internal static byte[] GetBytes(IntPtr ptr, int length)
+        {
+            if (ptr == IntPtr.Zero)
+            {
+                return null;
+            }
+
+            byte[] result = new byte[length];
+            Marshal.Copy(ptr, result, 0, length);
+            return result;
         }
 
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]

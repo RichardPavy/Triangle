@@ -8,10 +8,10 @@ namespace LevelDB.Iterables
     internal sealed class RangeIterable : AbstractIterable
     {
         private readonly AbstractIterable iterable;
-        private readonly string from;
-        private readonly string to;
+        private readonly byte[] from;
+        private readonly byte[] to;
 
-        internal RangeIterable(AbstractIterable iterable, string from, string to)
+        internal RangeIterable(AbstractIterable iterable, byte[] from, byte[] to)
         {
             this.iterable = iterable;
             this.from = from;

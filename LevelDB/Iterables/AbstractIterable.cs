@@ -9,9 +9,9 @@ namespace LevelDB.Iterables
     /// </summary>
     internal abstract class AbstractIterable : IIterable
     {
-        public IEnumerator<KeyValuePair<string, string>> GetEnumerator() => GetIterator();
+        public IEnumerator<KeyValuePair<byte[], byte[]>> GetEnumerator() => GetIterator();
         IEnumerator IEnumerable.GetEnumerator() => GetIterator();
-        public IIterable Range(string from, string to) => new RangeIterable(this, from, to);
+        public IIterable Range(byte[] from, byte[] to) => new RangeIterable(this, from, to);
         public IIterable Reverse() => new ReverseIterable(this);
 
         public abstract IIterator GetIterator();
