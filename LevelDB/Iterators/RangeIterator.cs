@@ -25,7 +25,7 @@ namespace LevelDB.Iterators
         {
             if (CompareKeys(from, to) > 0)
             {
-                throw new ArgumentException($"Invalid range ['{from}' - '{to}']");
+                throw new ArgumentException($"Invalid range ['{string.Join(",", from)}' - '{string.Join(",", to)}']");
             }
             this.from = from;
             this.to = to;
@@ -50,7 +50,7 @@ namespace LevelDB.Iterators
                 base.Seek(key);
                 return this;
             }
-            throw new ArgumentOutOfRangeException($"key '{key}' is not between ['{this.from}' - '{this.to}']");
+            throw new ArgumentOutOfRangeException($"key '{string.Join(",", key)}' is not between ['{string.Join(",", this.from)}' - '{string.Join(",", this.to)}']");
         }
 
         public override IIterator Reverse() => base.Reverse().Range(this.to, this.from);
@@ -61,7 +61,7 @@ namespace LevelDB.Iterators
             {
                 return base.Range(from, to);
             }
-            throw new ArgumentOutOfRangeException($"['{from}' - '{to}'] is not included in ['{this.from}' - '{this.to}']");
+            throw new ArgumentOutOfRangeException($"['{string.Join(",", from)}' - '{string.Join(",", to)}'] is not included in ['{string.Join(",", this.from)}' - '{string.Join(",", this.to)}']");
         }
     }
 }

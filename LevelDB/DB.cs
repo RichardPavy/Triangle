@@ -360,5 +360,7 @@ namespace LevelDB
         {
             return db.GetProperty(property);
         }
-    }
+        
+        public DB<TKey2, TValue2> Cast<TKey2, TValue2>() => new DB<TKey2, TValue2>(db);
+   }
 }

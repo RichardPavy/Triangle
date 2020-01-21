@@ -1,6 +1,7 @@
 namespace LevelDB
 {
     using System;
+    using System.Runtime.InteropServices;
     using System.Text;
 
     internal abstract class Marshallers<T>
@@ -16,7 +17,12 @@ namespace LevelDB
 
             if (typeof(T) == typeof(byte[]))
             {
-                return new NoopMarshaller() as Marshaller<T>;
+                return new BytesMarshaller() as Marshaller<T>;
+            }
+
+            if (typeof(T).IsValueType)
+            {
+                return new ValueTypeMarshaller<T>() as Marshaller<T>;
             }
 
             throw new InvalidOperationException(
@@ -30,7 +36,7 @@ namespace LevelDB
         internal abstract T FromBytes(byte[] bytes);
     }
 
-    internal sealed class NoopMarshaller : Marshaller<byte[]>
+    internal sealed class BytesMarshaller : Marshaller<byte[]>
     {
         internal override byte[] FromBytes(byte[] bytes)
         {
@@ -53,6 +59,27 @@ namespace LevelDB
         internal override byte[] ToBytes(string value)
         {
             return Encoding.UTF8.GetBytes(value);
+        }
+    }
+
+    internal sealed class ValueTypeMarshaller<T> : Marshaller<T>
+    {
+        internal override T FromBytes(byte[] data)
+        {
+            GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+            var value =  Marshal.PtrToStructure<T>(handle.AddrOfPinnedObject());
+            handle.Free();
+            return value;
+        }
+
+        internal override byte[] ToBytes(T value)
+        {
+            int size = Marshal.SizeOf<T>();
+            byte[] data = new byte[size];
+            GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
+            Marshal.StructureToPtr(value, handle.AddrOfPinnedObject(), false);
+            handle.Free();
+            return data;
         }
     }
 }

@@ -1,5 +1,6 @@
 namespace LevelDB.Tests
 {
+    using System;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using Xunit;
@@ -23,7 +24,7 @@ namespace LevelDB.Tests
             using (LevelDB.DB<string, string> db = GetTestDb())
             {
                 Assert.Equal("1", db.Get("a"));
-                Assert.Equal("26",db.Get("z"));
+                Assert.Equal("26", db.Get("z"));
                 Assert.Equal("1", db["a"]);
                 Assert.Equal("26", db["z"]);
             }
@@ -70,6 +71,76 @@ namespace LevelDB.Tests
                 Assert.Equal(
                     "y=25;x=24;n=14;m=13;l=12",
                     string.Join(";", db.GetIterable().Range("c", "y").Reverse().Select(kv => $"{kv.Key}={kv.Value}")));
+            }
+        }
+
+        [Fact]
+        public void Integers()
+        {
+            LevelDB.Options options = new LevelDB.Options();
+            options.CreateIfMissing = true;
+            using (var db = new LevelDB.DB(options, $"/tmp/Integers").Cast<int, string>())
+            {
+                db.Put(1, "aaa").Put(2, "bbb").Put(3, "ccc");
+                db.Put(7, "ggg").Put(8, "hhh").Put(9, "iii");
+                db.Put(6, "fff").Put(5, "eee").Put(4, "ddd");
+                Assert.Equal(
+                    "4=ddd;5=eee;6=fff;7=ggg",
+                    string.Join(";", db.GetIterable().Range(4, 8).Select(kv => $"{kv.Key}={kv.Value}")));
+            }
+        }
+
+        [Fact]
+        public void Join()
+        {
+            LevelDB.Options options = new LevelDB.Options();
+            options.CreateIfMissing = true;
+            using (var db = new LevelDB.DB(options, $"/tmp/Join"))
+            {
+                var parents = db.Cast<Parent, string>();
+                var children = db.Cast<Child, string>();
+                parents.Put(new Parent(1), "aaa");
+                parents.Put(new Parent(2), "bbb");
+                children.Put(new Child(1, 1), "afirst");
+                children.Put(new Child(1, 2), "asecond");
+                children.Put(new Child(2, 1), "afirst");
+                children.Put(new Child(2, 2), "asecond");
+                var join =
+                    from parent
+                        in parents.GetIterable().Range(new Parent(1), new Parent(3))
+                    join child
+                        in children.GetIterable().Range(new Child(1, 1), new Child(3, 1))
+                        on parent.Key.parentId equals child.Key.parentId
+                    select $"[{parent.Value} => {child.Key.parentId}:{child.Key.childId}:{child.Value}]";
+                Assert.Equal(
+                    "[aaa => 1:1:afirst]; [aaa => 1:2:asecond]; [bbb => 2:1:afirst]; [bbb => 2:2:asecond]",
+                    string.Join("; ", join));
+            }
+        }
+
+        struct Parent
+        {
+            private readonly int table;
+            internal readonly int parentId;
+
+            internal Parent(int parentId)
+            {
+                this.table = 1;
+                this.parentId = parentId;
+            }
+        }
+
+        struct Child
+        {
+            private readonly int table;
+            internal readonly int parentId;
+            internal readonly int childId;
+
+            internal Child(int parentId, int childId)
+            {
+                this.table = 2;
+                this.parentId = parentId;
+                this.childId = childId;
             }
         }
 
