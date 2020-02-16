@@ -1,5 +1,7 @@
 name: Triangle
 on:
+  schedule:
+    - cron: '0 10 * * 6'
   push:
     branches:    
       - master
