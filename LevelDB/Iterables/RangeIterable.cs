@@ -7,7 +7,6 @@ namespace LevelDB.Iterables
     /// </summary>
     internal sealed class RangeIterable : DelegateIterable
     {
-        private readonly AbstractIterable iterable;
         private readonly byte[] from;
         private readonly byte[] to;
 
