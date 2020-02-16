@@ -67,7 +67,7 @@ namespace LevelDB
         internal override T FromBytes(byte[] data)
         {
             GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-            var value =  Marshal.PtrToStructure<T>(handle.AddrOfPinnedObject());
+            var value = Marshal.PtrToStructure<T>(handle.AddrOfPinnedObject());
             handle.Free();
             return value;
         }

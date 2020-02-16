@@ -1,6 +1,5 @@
 namespace LevelDB.Tests
 {
-    using System;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using Xunit;
@@ -79,7 +78,7 @@ namespace LevelDB.Tests
         {
             LevelDB.Options options = new LevelDB.Options();
             options.CreateIfMissing = true;
-            using (var db = new LevelDB.DB(options, $"/tmp/Integers").Cast<int, string>())
+            using (var db = new LevelDB.DB(options, $"/tmp/DBTests-Integers").Cast<int, string>())
             {
                 db.Put(1, "aaa").Put(2, "bbb").Put(3, "ccc");
                 db.Put(7, "ggg").Put(8, "hhh").Put(9, "iii");
@@ -95,7 +94,7 @@ namespace LevelDB.Tests
         {
             LevelDB.Options options = new LevelDB.Options();
             options.CreateIfMissing = true;
-            using (var db = new LevelDB.DB(options, $"/tmp/Join"))
+            using (var db = new LevelDB.DB(options, $"/tmp/DBTests-Join"))
             {
                 var parents = db.Cast<Parent, string>();
                 var children = db.Cast<Child, string>();
@@ -128,6 +127,11 @@ namespace LevelDB.Tests
                 this.table = 1;
                 this.parentId = parentId;
             }
+
+            public override string ToString()
+            {
+                return $"[Parent] table:{table} parentId{parentId}";
+            }
         }
 
         struct Child
@@ -142,13 +146,18 @@ namespace LevelDB.Tests
                 this.parentId = parentId;
                 this.childId = childId;
             }
+
+            public override string ToString()
+            {
+                return $"[Child] table:{table} parentId{parentId} childId:{childId}";
+            }
         }
 
         private LevelDB.DB<string, string> GetTestDb([CallerMemberName] string name = null)
         {
             LevelDB.Options options = new LevelDB.Options();
             options.CreateIfMissing = true;
-            var db = new LevelDB.DB(options, $"/tmp/{name}").Cast<string, string>();
+            var db = new LevelDB.DB(options, $"/tmp/DBTests-{name}").Cast<string, string>();
             db.Put("c", "3").Put("b", "2").Put("a", "1");
             db.Put("l", "12").Put("m", "13").Put("n", "14");
             db.Put("z", "26").Put("y", "25").Put("x", "24");

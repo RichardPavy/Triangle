@@ -14,10 +14,13 @@ namespace LevelDB.Iterators
         {
             get
             {
+                if (!base.IsValid)
+                {
+                    return false;
+                }
                 byte[] key = Key;
                 return CompareKeys(this.from, key) <= 0
-                    && CompareKeys(key, this.to) < 0
-                    && base.IsValid;
+                    && CompareKeys(key, this.to) < 0;
             }
         }
 
