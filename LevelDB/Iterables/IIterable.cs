@@ -12,6 +12,10 @@ namespace LevelDB.Iterables
         IIterable<TKey, TValue> Reverse();
         IIterable<TKey, TValue> Range(TKey from, TKey to);
         IIterable<TKey2, TValue2> Cast<TKey2, TValue2>();
+
+        IIterable<TKey, TValue> Snapshot();
+        IIterable<TKey, TValue> FillCache(bool fillCache);
+        IIterable<TKey, TValue> VerifyChecksums(bool verifyChecksums);
     }
 
     public interface IIterable : IIterable<byte[], byte[]>

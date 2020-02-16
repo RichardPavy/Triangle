@@ -20,5 +20,26 @@ namespace LevelDB.Iterables
         IIterator<byte[], byte[]> IIterable<byte[], byte[]>.GetIterator() => GetIterator();
         IIterable<byte[], byte[]> IIterable<byte[], byte[]>.Reverse() => Reverse();
         IIterable<byte[], byte[]> IIterable<byte[], byte[]>.Range(byte[] from, byte[] to) => Range(from, to);
+
+        internal abstract DB DB { get; }
+        internal abstract ReadOptions ReadOptions { get; }
+
+        public IIterable<byte[], byte[]> Snapshot()
+        {
+            ReadOptions.Snapshot = DB.CreateSnapshot();
+            return this;
+        }
+
+        public IIterable<byte[], byte[]> FillCache(bool fillCache)
+        {
+            ReadOptions.FillCache = fillCache;
+            return this;
+        }
+
+        public IIterable<byte[], byte[]> VerifyChecksums(bool verifyChecksums)
+        {
+            ReadOptions.VerifyChecksums = true;
+            return this;
+        }
     }
 }

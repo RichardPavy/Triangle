@@ -2,6 +2,7 @@ namespace LevelDB.Tests
 {
     using System.Linq;
     using System.Runtime.CompilerServices;
+    using LevelDB.Iterables;
     using Xunit;
 
     public class DBTests
@@ -150,6 +151,35 @@ namespace LevelDB.Tests
             public override string ToString()
             {
                 return $"[Child] table:{table} parentId{parentId} childId:{childId}";
+            }
+        }
+
+        [Fact]
+        public void Delete()
+        {
+            using (LevelDB.DB<string, string> db = GetTestDb())
+            {
+                db.Delete("a").Delete("c").Delete("m").Delete("n");
+                Assert.Equal(
+                    "b=2;l=12;x=24;y=25;z=26",
+                    string.Join(";", db.GetIterable().Select(kv => $"{kv.Key}={kv.Value}")));
+            }
+        }
+
+        [Fact]
+        public void Snapshot()
+        {
+            using (LevelDB.DB<string, string> db = GetTestDb())
+            {
+                IIterable<string, string> it = db.GetIterable().Snapshot();
+                db.Delete("a").Delete("c").Delete("m").Delete("n");
+                Assert.Equal(
+                    "a=1;b=2;c=3;l=12;m=13;n=14;x=24;y=25;z=26",
+                    string.Join(";", it.Select(kv => $"{kv.Key}={kv.Value}")));
+                it.Snapshot();
+                Assert.Equal(
+                    "b=2;l=12;x=24;y=25;z=26",
+                    string.Join(";", it.Select(kv => $"{kv.Key}={kv.Value}")));
             }
         }
 

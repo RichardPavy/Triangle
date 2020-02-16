@@ -9,16 +9,17 @@ namespace LevelDB.Iterables
     /// </summary>
     internal sealed class Iterable : AbstractIterable
     {
-        private readonly DB db;
-        private readonly ReadOptions readOptions;
+        internal override DB DB { get; }
+
+        internal override ReadOptions ReadOptions { get; }
 
         internal Iterable(DB db, ReadOptions readOptions)
         {
-            this.db = db;
-            this.readOptions = readOptions;
+            DB = db;
+            ReadOptions = readOptions;
         }
 
-        public override IIterator GetIterator() => new Iterator(db, readOptions);
+        public override IIterator GetIterator() => new Iterator(DB, ReadOptions);
     }
 
     internal sealed class Iterable<TKey, TValue> : IIterable<TKey, TValue>
@@ -46,5 +47,23 @@ namespace LevelDB.Iterables
 
         public IIterable<TKey2, TValue2> Cast<TKey2, TValue2>() =>
             new Iterable<TKey2, TValue2>(delegateIterable);
+
+        public IIterable<TKey, TValue> Snapshot()
+        {
+            delegateIterable.Snapshot();
+            return this;
+        }
+
+        public IIterable<TKey, TValue> FillCache(bool fillCache)
+        {
+            delegateIterable.FillCache(fillCache);
+            return this;
+        }
+
+        public IIterable<TKey, TValue> VerifyChecksums(bool verifyChecksums)
+        {
+            delegateIterable.VerifyChecksums(verifyChecksums);
+            return this;
+        }
     }
 }

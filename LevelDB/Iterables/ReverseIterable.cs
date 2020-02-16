@@ -5,15 +5,12 @@ namespace LevelDB.Iterables
     /// <summary>
     /// Implementation of IIterable that loops in reverse order.
     /// </summary>
-    internal sealed class ReverseIterable : AbstractIterable
+    internal sealed class ReverseIterable : DelegateIterable
     {
-        private readonly AbstractIterable iterable;
-
-        internal ReverseIterable(AbstractIterable iterable)
+        internal ReverseIterable(AbstractIterable delegateIterable) : base(delegateIterable)
         {
-            this.iterable = iterable;
         }
 
-        public override IIterator GetIterator() => iterable.GetIterator().Reverse();
+        public override IIterator GetIterator() => delegateIterable.GetIterator().Reverse();
     }
 }
