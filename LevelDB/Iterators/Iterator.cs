@@ -100,7 +100,14 @@ namespace LevelDB.Iterators
 
         internal override IIterator Seek(byte[] key)
         {
-            leveldb_iter_seek(Handle, key, new UIntPtr((uint)key.Length));
+            if (key == null)
+            {
+                SeekToLast();
+            }
+            else
+            {
+                leveldb_iter_seek(Handle, key, new UIntPtr((uint)key.Length));
+            }
             return this;
         }
 

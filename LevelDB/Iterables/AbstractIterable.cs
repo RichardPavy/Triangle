@@ -1,5 +1,6 @@
 namespace LevelDB.Iterables
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using LevelDB.Iterators;
@@ -14,6 +15,30 @@ namespace LevelDB.Iterables
         public IIterable Range(byte[] from, byte[] to) => new RangeIterable(this, from, to);
         public IIterable Reverse() => new ReverseIterable(this);
         public IIterable<TKey, TValue> Cast<TKey, TValue>() => new Iterable<TKey, TValue>(this);
+
+        public virtual IIterable<byte[], byte[]> Prefix(byte[] prefix)
+        {
+            byte[] end = null;
+            var endLength = prefix.Length;
+            for (int i = prefix.Length - 1; i >= 0; i--)
+            {
+                if (prefix[i] != 255)
+                {
+                    end = (byte[]) prefix.Clone();
+                    end[i]++;
+                    break;
+                }
+                endLength--;
+            }
+
+            if (endLength != 0 && endLength != prefix.Length)
+            {
+                // (endLength != 0) => we hit the break statement => (end != null).
+                Array.Resize(ref end, endLength);
+            }
+
+            return Range(prefix, end);
+        }
 
         public abstract IIterator GetIterator();
 

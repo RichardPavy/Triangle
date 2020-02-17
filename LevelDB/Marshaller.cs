@@ -53,12 +53,12 @@ namespace LevelDB
     {
         internal override string FromBytes(byte[] bytes)
         {
-            return Encoding.UTF8.GetString(bytes);
+            return bytes == null ? null : Encoding.UTF8.GetString(bytes);
         }
 
         internal override byte[] ToBytes(string value)
         {
-            return Encoding.UTF8.GetBytes(value);
+            return value == null ? null : Encoding.UTF8.GetBytes(value);
         }
     }
 

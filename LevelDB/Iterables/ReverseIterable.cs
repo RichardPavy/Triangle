@@ -11,6 +11,10 @@ namespace LevelDB.Iterables
         {
         }
 
-        public override IIterator GetIterator() => delegateIterable.GetIterator().Reverse();
+        public override IIterable<byte[], byte[]> Prefix(byte[] prefix) =>
+            delegateIterable.Prefix(prefix).Reverse();
+
+        public override IIterator GetIterator() =>
+            delegateIterable.GetIterator().Reverse();
     }
 }

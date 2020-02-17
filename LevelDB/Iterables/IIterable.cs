@@ -11,6 +11,7 @@ namespace LevelDB.Iterables
         IIterator<TKey, TValue> GetIterator();
         IIterable<TKey, TValue> Reverse();
         IIterable<TKey, TValue> Range(TKey from, TKey to);
+        IIterable<TKey, TValue> Prefix(TKey prefix);
         IIterable<TKey2, TValue2> Cast<TKey2, TValue2>();
 
         IIterable<TKey, TValue> Snapshot();

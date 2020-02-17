@@ -183,6 +183,47 @@ namespace LevelDB.Tests
             }
         }
 
+        [Fact]
+        public void Infinity()
+        {
+            using (LevelDB.DB<string, string> db = GetTestDb())
+            {
+                Assert.Equal(
+                    "y=25;z=26",
+                    string.Join(";", db.GetIterable().Range("y", null).Select(kv => $"{kv.Key}={kv.Value}")));
+                Assert.Equal(
+                    "z=26;y=25",
+                    string.Join(";", db.GetIterable().Reverse().Range(null, "x").Select(kv => $"{kv.Key}={kv.Value}")));
+            }
+        }
+
+        [Fact]
+        public void Prefix()
+        {
+            LevelDB.Options options = new LevelDB.Options();
+            options.CreateIfMissing = true;
+            using (var db = new LevelDB.DB(options, $"/tmp/DBTests-Prefix").Cast<string, int>())
+            {
+                db
+                    .Put("a", 1)
+                    .Put("aa", 2)
+                    .Put("ab", 3)
+                    .Put("b", 4)
+                    .Put("ba", 5)
+                    .Put("bb", 6)
+                    .Put("c", 7);
+                Assert.Equal(
+                    "a=1;aa=2;ab=3",
+                    string.Join(";", db.GetIterable().Prefix("a").Select(kv => $"{kv.Key}={kv.Value}")));
+                Assert.Equal(
+                   "ab=3;aa=2;a=1",
+                   string.Join(";", db.GetIterable().Reverse().Prefix("a").Select(kv => $"{kv.Key}={kv.Value}")));
+                Assert.Equal(
+                    "b=4;ab=3;aa=2",
+                    string.Join(";", db.GetIterable().Prefix("a").Reverse().Select(kv => $"{kv.Key}={kv.Value}")));
+            }
+        }
+
         private LevelDB.DB<string, string> GetTestDb([CallerMemberName] string name = null)
         {
             LevelDB.Options options = new LevelDB.Options();

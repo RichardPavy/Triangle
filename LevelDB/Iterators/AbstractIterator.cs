@@ -33,6 +33,12 @@ namespace LevelDB.Iterators
 
         internal virtual int CompareKeys(byte[] a, byte[] b)
         {
+            // null is infinity.
+            int compareNulls = (a == null).CompareTo(b == null);
+            if (compareNulls != 0)
+            {
+                return compareNulls;
+            }
             ReadOnlySpan<byte> aspan = a;
             ReadOnlySpan<byte> bspan = b;
             return aspan.SequenceCompareTo(bspan);

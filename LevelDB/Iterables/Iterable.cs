@@ -42,6 +42,11 @@ namespace LevelDB.Iterables
                     Marshallers<TKey>.Instance.ToBytes(to))
                 .Cast<TKey, TValue>();
 
+        public IIterable<TKey, TValue> Prefix(TKey prefix) =>
+            delegateIterable
+                .Prefix(Marshallers<TKey>.Instance.ToBytes(prefix))
+                .Cast<TKey, TValue>();
+
         public IIterable<TKey, TValue> Reverse() =>
             delegateIterable.Reverse().Cast<TKey, TValue>();
 
