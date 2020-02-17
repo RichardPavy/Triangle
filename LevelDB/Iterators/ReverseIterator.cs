@@ -19,8 +19,18 @@ namespace LevelDB.Iterators
             base.Next();
         }
 
-        internal override IIterator SeekToFirst() => base.SeekToLast();
-        internal override IIterator SeekToLast() => base.SeekToFirst();
+        internal override IIterator SeekToFirst()
+        {
+            base.SeekToLast();
+            return this;
+        }
+
+        internal override IIterator SeekToLast()
+        {
+            base.SeekToFirst();
+            return this;
+        }
+
         internal override int CompareKeys(byte[] a, byte[] b) => -base.CompareKeys(a, b);
 
         public override IIterator Reverse() => delegateIterator;

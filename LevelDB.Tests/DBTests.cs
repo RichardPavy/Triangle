@@ -216,8 +216,8 @@ namespace LevelDB.Tests
                     "a=1;aa=2;ab=3",
                     string.Join(";", db.GetIterable().Prefix("a").Select(kv => $"{kv.Key}={kv.Value}")));
                 Assert.Equal(
-                   "ab=3;aa=2;a=1",
-                   string.Join(";", db.GetIterable().Reverse().Prefix("a").Select(kv => $"{kv.Key}={kv.Value}")));
+                    "b=4;ab=3;aa=2",
+                    string.Join(";", db.GetIterable().Reverse().Prefix("a").Select(kv => $"{kv.Key}={kv.Value}")));
                 Assert.Equal(
                     "b=4;ab=3;aa=2",
                     string.Join(";", db.GetIterable().Prefix("a").Reverse().Select(kv => $"{kv.Key}={kv.Value}")));
