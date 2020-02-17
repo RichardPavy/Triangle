@@ -1,5 +1,7 @@
 namespace LevelDB.Tests
 {
+    using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Runtime.CompilerServices;
     using LevelDB.Iterables;
@@ -101,10 +103,10 @@ namespace LevelDB.Tests
                 var children = db.Cast<Child, string>();
                 parents.Put(new Parent(1), "aaa");
                 parents.Put(new Parent(2), "bbb");
-                children.Put(new Child(1, 1), "afirst");
-                children.Put(new Child(1, 2), "asecond");
-                children.Put(new Child(2, 1), "afirst");
-                children.Put(new Child(2, 2), "asecond");
+                children.Put(new Child(1, 11), "afirst");
+                children.Put(new Child(1, 12), "asecond");
+                children.Put(new Child(2, 21), "afirst");
+                children.Put(new Child(2, 22), "asecond");
                 var join =
                     from parent
                         in parents.GetIterable().Range(new Parent(1), new Parent(3))
@@ -113,8 +115,16 @@ namespace LevelDB.Tests
                         on parent.Key.parentId equals child.Key.parentId
                     select $"[{parent.Value} => {child.Key.parentId}:{child.Key.childId}:{child.Value}]";
                 Assert.Equal(
-                    "[aaa => 1:1:afirst]; [aaa => 1:2:asecond]; [bbb => 2:1:afirst]; [bbb => 2:2:asecond]",
+                    "[aaa => 1:11:afirst]; [aaa => 1:12:asecond]; [bbb => 2:21:afirst]; [bbb => 2:22:asecond]",
                     string.Join("; ", join));
+                IEnumerable<KeyValuePair<Tuple<Parent, Child>, Tuple<string, string>>> streamJoin =
+                    parents.GetIterable().Range(new Parent(1), new Parent(3))
+                        .Join(
+                            children.GetIterable().Range(new Child(1, 1), new Child(3, 1)),
+                            (k1, k2) => k1.parentId.CompareTo(k2.parentId));
+                Assert.Equal(
+                    "1/11 => aaa/afirst; 1/12 => aaa/asecond; 2/21 => bbb/afirst; 2/22 => bbb/asecond",
+                    string.Join("; ", streamJoin.Select(row => $"{row.Key.Item1.parentId}/{row.Key.Item2.childId} => {row.Value.Item1}/{row.Value.Item2}")));
             }
         }
 
