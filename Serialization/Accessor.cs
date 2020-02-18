@@ -6,28 +6,20 @@ namespace Serialization
 
     public static class Getter<T, V>
     {
-        public static Func<T, V> Create(PropertyInfo property)
-        {
-            return (Func<T, V>)property.GetMethod.CreateDelegate(typeof(Func<T, V>));
-        }
+        public static Func<T, V> Create(PropertyInfo property) =>
+            (Func<T, V>)property.GetMethod.CreateDelegate(typeof(Func<T, V>));
 
-        public static Func<T, V> Create(string name)
-        {
-            return Create(Accessor.FindProperty(typeof(T), name));
-        }
+        public static Func<T, V> Create(string name) =>
+            Create(Accessor.FindProperty(typeof(T), name));
     }
 
     public static class Setter<T, V>
     {
-        public static Action<T, V> Create(PropertyInfo property)
-        {
-            return (Action<T, V>)property.SetMethod.CreateDelegate(typeof(Action<T, V>));
-        }
+        public static Action<T, V> Create(PropertyInfo property) =>
+            (Action<T, V>)property.SetMethod.CreateDelegate(typeof(Action<T, V>));
 
-        public static Action<T, V> Create(string name)
-        {
-            return Create(Accessor.FindProperty(typeof(T), name));
-        }
+        public static Action<T, V> Create(string name) =>
+            Create(Accessor.FindProperty(typeof(T), name));
     }
 
     public class Accessor
