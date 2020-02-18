@@ -14,7 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\LevelDB\LevelDB.csproj" />
+    <ProjectReference Include="..\Visitor\Visitor.csproj" />
   </ItemGroup>
 
 </Project>
