@@ -15,7 +15,7 @@
         private readonly ClassVisitor<TData, V> classVisitor;
         private readonly Process<TData, V> process;
 
-        private IGetter getter;
+        private IGetter<TObj, V> getter;
 
         internal FieldVisitor(
             VisitorFactory<TData> visitorFactory,
@@ -41,39 +41,7 @@
 
         internal override void Initialize()
         {
-            getter = property.GetMethod.DeclaringType.IsClass
-                ? new ClassGetter(property.GetMethod)
-                : new StructGetter(property.GetMethod)
-                as IGetter;
-        }
-
-        internal interface IGetter
-        {
-            V Apply(in TObj obj);
-        }
-
-        internal struct StructGetter : IGetter
-        {
-            private readonly GetterImpl impl;
-
-            internal StructGetter(MethodInfo method) =>
-                impl = (GetterImpl)method.CreateDelegate(typeof(GetterImpl));
-
-            public V Apply(in TObj obj) => impl(in obj);
-
-            private delegate V GetterImpl(in TObj obj);
-        }
-
-        internal struct ClassGetter : IGetter
-        {
-            private readonly GetterImpl impl;
-
-            internal ClassGetter(MethodInfo method) =>
-                impl = (GetterImpl)method.CreateDelegate(typeof(GetterImpl));
-
-            public V Apply(in TObj obj) => impl(obj);
-
-            private delegate V GetterImpl(TObj obj);
+            getter = Getter.Create<TObj, V>(this.property);
         }
     }
 }

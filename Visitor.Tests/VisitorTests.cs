@@ -1,6 +1,5 @@
 namespace Visitors.Tests
 {
-    using System;
     using System.Text;
     using Visitors;
     using Xunit;
