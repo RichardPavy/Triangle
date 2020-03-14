@@ -19,8 +19,8 @@
             MustVisit = mustVisit;
         }
 
-        public static implicit operator ClassVisitorProcessor(Delegate process) => new VisitorProcessor(process);
-        public static implicit operator ClassVisitorProcessor(MustVisitStatus mustVisit) => new VisitorProcessor(mustVisit);
+        public static implicit operator ClassVisitorProcessor(Delegate process) => new ClassVisitorProcessor(process);
+        public static implicit operator ClassVisitorProcessor(MustVisitStatus mustVisit) => new ClassVisitorProcessor(mustVisit);
 
     }
 

@@ -36,7 +36,7 @@
                 visitor =
                     new Lazy<Visitor>(() =>
                     {
-                        VisitorProcessor processor = classProcessorFactory(obj);
+                        ClassVisitorProcessor processor = classProcessorFactory(obj);
                         return (Visitor) typeof(ClassVisitor<,>)
                             .MakeGenericType(typeof(TData), obj)
                             .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
@@ -51,7 +51,7 @@
 
         internal FieldVisitor<TData, TObj> CreateFieldVisitor<TObj>(PropertyInfo property)
         {
-            VisitorProcessor processor = fieldProcessorFactory(property) ?? MustVisitStatus.No;
+            FieldVisitorProcessor processor = fieldProcessorFactory(property) ?? MustVisitStatus.No;
             return (FieldVisitor<TData, TObj>) typeof(FieldVisitor<,,>)
                 .MakeGenericType(
                     typeof(TData),
@@ -62,7 +62,7 @@
                 .Invoke(new object[] { this, property, processor.Process, processor.MustVisit });
         }
 
-        public delegate VisitorProcessor ClassProcessorFactory(Type type);
-        public delegate VisitorProcessor FieldProcessorFactory(PropertyInfo property);
+        public delegate ClassVisitorProcessor ClassProcessorFactory(Type type);
+        public delegate FieldVisitorProcessor FieldProcessorFactory(PropertyInfo property);
     }
 }

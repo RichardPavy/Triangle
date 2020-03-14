@@ -2,25 +2,25 @@
 {
     using System;
 
-    public sealed class VisitorProcessor
+    public sealed class FieldVisitorProcessor
     {
         internal Delegate Process { get; }
         internal MustVisitStatus MustVisit { get; }
 
-        private VisitorProcessor(Delegate process)
+        private FieldVisitorProcessor(Delegate process)
         {
             Process = process;
             MustVisit = process == null ? MustVisitStatus.No : MustVisitStatus.Yes;
         }
 
-        private VisitorProcessor(MustVisitStatus mustVisit)
+        private FieldVisitorProcessor(MustVisitStatus mustVisit)
         {
             Process = null;
             MustVisit = mustVisit;
         }
 
-        public static implicit operator VisitorProcessor(Delegate process) => new VisitorProcessor(process);
-        public static implicit operator VisitorProcessor(MustVisitStatus mustVisit) => new VisitorProcessor(mustVisit);
+        public static implicit operator FieldVisitorProcessor(Delegate process) => new FieldVisitorProcessor(process);
+        public static implicit operator FieldVisitorProcessor(MustVisitStatus mustVisit) => new FieldVisitorProcessor(mustVisit);
 
     }
 
