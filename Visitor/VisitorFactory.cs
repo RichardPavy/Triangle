@@ -24,7 +24,7 @@
         public ClassVisitor<TData, TObj> GetClassVisitor<TObj>()
         {
             ClassVisitor<TData, TObj> classVisitor =
-                (ClassVisitor<TData, TObj>)CreateClassVisitor(typeof(TObj)).Value;
+                (ClassVisitor<TData, TObj>) CreateClassVisitor(typeof(TObj)).Value;
             classVisitor.Initialize();
             return classVisitor;
         }
@@ -35,30 +35,34 @@
             {
                 visitor =
                     new Lazy<Visitor>(() =>
-                        (Visitor)
-                            typeof(ClassVisitor<,>)
-                                .MakeGenericType(typeof(TData), obj)
-                                .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
-                                .Single()
-                                .Invoke(new object[] { this, classProcessorFactory(obj) }));
+                    {
+                        VisitorProcessor processor = classProcessorFactory(obj) ?? MustVisitStatus.No;
+                        return (Visitor) typeof(ClassVisitor<,>)
+                            .MakeGenericType(typeof(TData), obj)
+                            .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
+                            .Single()
+                            .Invoke(new object[] { this, processor.Process, processor.MustVisit });
+                    });
                 visitors.Add(obj, visitor);
 
             }
             return visitor;
         }
 
-        internal FieldVisitor<TData, TObj> CreateFieldVisitor<TObj>(PropertyInfo property) =>
-            (FieldVisitor<TData, TObj>)
-                typeof(FieldVisitor<,,>)
-                    .MakeGenericType(
-                        typeof(TData),
-                        property.GetMethod.DeclaringType,
-                        property.GetMethod.ReturnType)
-                    .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
-                    .Single()
-                    .Invoke(new object[] { this, property, fieldProcessorFactory(property) });
+        internal FieldVisitor<TData, TObj> CreateFieldVisitor<TObj>(PropertyInfo property)
+        {
+            VisitorProcessor processor = fieldProcessorFactory(property) ?? MustVisitStatus.No;
+            return (FieldVisitor<TData, TObj>) typeof(FieldVisitor<,,>)
+                .MakeGenericType(
+                    typeof(TData),
+                    property.GetMethod.DeclaringType,
+                    property.GetMethod.ReturnType)
+                .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
+                .Single()
+                .Invoke(new object[] { this, property, processor.Process, processor.MustVisit });
+        }
 
-        public delegate Delegate ClassProcessorFactory(Type type);
-        public delegate Delegate FieldProcessorFactory(PropertyInfo property);
+        public delegate VisitorProcessor ClassProcessorFactory(Type type);
+        public delegate VisitorProcessor FieldProcessorFactory(PropertyInfo property);
     }
 }

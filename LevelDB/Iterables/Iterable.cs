@@ -3,6 +3,7 @@ namespace LevelDB.Iterables
     using System.Collections;
     using System.Collections.Generic;
     using LevelDB.Iterators;
+    using Serialization;
 
     /// <summary>
     /// Implementation of IIterable that loops through all the keys.

@@ -8,12 +8,17 @@
     /// </summary>
     public abstract class Visitor
     {
+        protected Visitor(MustVisitStatus mustVisit)
+        {
+            MustVisit = mustVisit;
+        }
+
         protected abstract IEnumerable<Visitor> ChildVisitors();
 
         /// <summary>
         /// Whether this visitor must be traversed.
         /// </summary>
-        internal abstract bool MustVisit();
+        internal readonly MustVisitStatus MustVisit;
 
         /// <summary>
         /// Whether this visitor should be traversed.
@@ -24,18 +29,17 @@
         {
             ISet<Visitor> allVisitors = new HashSet<Visitor>();
             FindAllVisitors(allVisitors);
-            return allVisitors.Any(visitor => visitor.MustVisit());
+            return allVisitors.Any(visitor => visitor.MustVisit == MustVisitStatus.Yes);
         }
 
         private void FindAllVisitors(ISet<Visitor> accu)
         {
-            if (accu.Add(this))
-                foreach (Visitor childVisitor in ChildVisitors())
-                    childVisitor.FindAllVisitors(accu);
+            if (MustVisit != MustVisitStatus.Never)
+                if (accu.Add(this))
+                    foreach (Visitor childVisitor in ChildVisitors())
+                        childVisitor.FindAllVisitors(accu);
         }
 
         internal abstract void Initialize();
-
-        public delegate void Process<TData, TObj>(TData data, TObj obj);
     }
 }

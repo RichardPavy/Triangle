@@ -1,12 +1,12 @@
-namespace LevelDB
+namespace Serialization
 {
     using System;
     using System.Runtime.InteropServices;
     using System.Text;
 
-    internal abstract class Marshallers<T>
+    public abstract class Marshallers<T>
     {
-        internal static readonly Marshaller<T> Instance = Get();
+        public static readonly Marshaller<T> Instance = Get();
 
         private static Marshaller<T> Get()
         {
@@ -30,20 +30,20 @@ namespace LevelDB
         }
     }
 
-    internal abstract class Marshaller<T>
+    public abstract class Marshaller<T>
     {
-        internal abstract byte[] ToBytes(T value);
-        internal abstract T FromBytes(byte[] bytes);
+        public abstract byte[] ToBytes(T value);
+        public abstract T FromBytes(byte[] bytes);
     }
 
     internal sealed class BytesMarshaller : Marshaller<byte[]>
     {
-        internal override byte[] FromBytes(byte[] bytes)
+        public override byte[] FromBytes(byte[] bytes)
         {
             return bytes;
         }
 
-        internal override byte[] ToBytes(byte[] value)
+        public override byte[] ToBytes(byte[] value)
         {
             return value;
         }
@@ -51,12 +51,12 @@ namespace LevelDB
 
     internal sealed class StringMarshaller : Marshaller<string>
     {
-        internal override string FromBytes(byte[] bytes)
+        public override string FromBytes(byte[] bytes)
         {
             return bytes == null ? null : Encoding.UTF8.GetString(bytes);
         }
 
-        internal override byte[] ToBytes(string value)
+        public override byte[] ToBytes(string value)
         {
             return value == null ? null : Encoding.UTF8.GetBytes(value);
         }
@@ -64,22 +64,34 @@ namespace LevelDB
 
     internal sealed class ValueTypeMarshaller<T> : Marshaller<T>
     {
-        internal override T FromBytes(byte[] data)
+        private static readonly int Size = Marshal.SizeOf<T>();
+
+        public override T FromBytes(byte[] data)
         {
             GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-            var value = Marshal.PtrToStructure<T>(handle.AddrOfPinnedObject());
-            handle.Free();
-            return value;
+            try
+            {
+                return Marshal.PtrToStructure<T>(handle.AddrOfPinnedObject());
+            }
+            finally
+            {
+                handle.Free();
+            }
         }
 
-        internal override byte[] ToBytes(T value)
+        public override byte[] ToBytes(T value)
         {
-            int size = Marshal.SizeOf<T>();
-            byte[] data = new byte[size];
+            byte[] data = new byte[Size];
             GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-            Marshal.StructureToPtr(value, handle.AddrOfPinnedObject(), false);
-            handle.Free();
-            return data;
+            try
+            {
+                Marshal.StructureToPtr(value, handle.AddrOfPinnedObject(), false);
+                return data;
+            }
+            finally
+            {
+                handle.Free();
+            }
         }
     }
 }

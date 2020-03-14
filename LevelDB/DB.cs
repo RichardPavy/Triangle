@@ -3,6 +3,7 @@ namespace LevelDB
     using System;
     using System.Runtime.InteropServices;
     using LevelDB.Iterables;
+    using Serialization;
 
     public class DB : IDisposable
     {

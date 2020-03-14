@@ -6,6 +6,10 @@
 
     internal abstract class FieldVisitor<TData, TObj> : Visitor
     {
+        protected FieldVisitor(MustVisitStatus mustVisit) : base(mustVisit)
+        {
+        }
+
         internal abstract void Visit(TData data, TObj obj);
     }
 
@@ -20,7 +24,8 @@
         internal FieldVisitor(
             VisitorFactory<TData> visitorFactory,
             PropertyInfo property,
-            Process<TData, V> process)
+            Process<TData, V> process,
+            MustVisitStatus mustVisit) : base(mustVisit)
         {
             this.property = property;
             this.classVisitor = visitorFactory.GetClassVisitor<V>();
@@ -30,14 +35,12 @@
         internal override void Visit(TData data, TObj obj)
         {
             V value = getter.Apply(obj);
-            if (MustVisit()) process(data, value);
+            if (MustVisit == MustVisitStatus.Yes) process(data, value);
             classVisitor.Visit(data, value);
         }
 
         protected override IEnumerable<Visitor> ChildVisitors() =>
             ImmutableArray.Create(classVisitor);
-
-        internal override bool MustVisit() => process != null;
 
         internal override void Initialize()
         {

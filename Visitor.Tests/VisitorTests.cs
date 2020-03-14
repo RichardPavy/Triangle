@@ -14,23 +14,23 @@ namespace Visitors.Tests
                     type =>
                         {
                             if (typeof(Rectangle).IsAssignableFrom(type))
-                                return new Visitor.Process<StringBuilder, Rectangle>(
+                                return new Process<StringBuilder, Rectangle>(
                                     (sb, rectangle) => sb.Append("Rectangle;"));
                             if (typeof(string).IsAssignableFrom(type))
-                                return new Visitor.Process<StringBuilder, string>(
+                                return new Process<StringBuilder, string>(
                                     (sb, @string) => sb.Append($"string:{@string};"));
                             if (typeof(int).IsAssignableFrom(type))
-                                return new Visitor.Process<StringBuilder, int>(
+                                return new Process<StringBuilder, int>(
                                     (sb, @int) => sb.Append($"int:{@int};"));
                             return null;
                         },
                     property =>
                         {
                             if (typeof(string).IsAssignableFrom(property.GetMethod.ReturnType))
-                                return new Visitor.Process<StringBuilder, string>(
+                                return new Process<StringBuilder, string>(
                                     (sb, @string) => sb.Append($"{property.DeclaringType.Name}.{property.Name}=string:{@string};"));
                             if (typeof(int).IsAssignableFrom(property.GetMethod.ReturnType))
-                                return new Visitor.Process<StringBuilder, int>(
+                                return new Process<StringBuilder, int>(
                                     (sb, @int) => sb.Append($"{property.DeclaringType.Name}.{property.Name}=int:{@int};"));
                             return null;
                         });

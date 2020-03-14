@@ -15,7 +15,10 @@
         // Faster access than Lazy fields.
         private FieldVisitor<TData, TObj>[] enabledFieldVisitorsCache = null;
 
-        internal ClassVisitor(VisitorFactory<TData> visitorFactory, Process<TData, TObj> process)
+        internal ClassVisitor(
+            VisitorFactory<TData> visitorFactory,
+            Process<TData, TObj> process,
+            MustVisitStatus mustVisit) : base(mustVisit)
         {
             allFieldVisitors =
                 new Lazy<ImmutableArray<FieldVisitor<TData, TObj>>>(() =>
@@ -47,7 +50,7 @@
 
         public void Visit(TData data, TObj obj)
         {
-            if (MustVisit()) process(data, obj);
+            if (MustVisit == MustVisitStatus.Yes) process(data, obj);
 
             foreach (var fieldVisitor in enabledFieldVisitorsCache)
                 fieldVisitor.Visit(data, obj);
@@ -55,7 +58,5 @@
 
         protected override IEnumerable<Visitor> ChildVisitors() =>
             allFieldVisitors.Value;
-
-        internal override bool MustVisit() => process != null;
     }
 }
