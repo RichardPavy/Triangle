@@ -1,6 +1,7 @@
 ﻿namespace Serialization
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
 
@@ -20,6 +21,7 @@
             return genericFuncCaller.Call(Self);
         }
 
+        [GenericFuncCaller]
         protected abstract class GenericFuncCaller
         {
             internal abstract TOutput Call(TSelf genericFunc);
@@ -28,9 +30,15 @@
         private TSelf Self => (TSelf)this;
         private Type GenericFuncCallerType =>
             GetType()
-                .GetNestedTypes(BindingFlags.NonPublic | BindingFlags.Instance)
-                .Where(type => typeof(GenericFuncCaller).IsAssignableFrom(type))
-                .Single();
+                .GetTypeHierarchy()
+                .SelectMany(type => type.GetNestedTypes(BindingFlags.NonPublic))
+                .Where(type => type.GetCustomAttribute<GenericFuncCallerAttribute>() != null)
+                .First();
+    }
+
+    [AttributeUsage(AttributeTargets.Class, Inherited = true)]
+    internal class GenericFuncCallerAttribute : Attribute
+    {
     }
 
     public abstract class GenericFunc<TOutput> : AbstractGenericFunc<GenericFunc<TOutput>, TOutput>
@@ -94,6 +102,26 @@
              where TValue : struct
         {
             internal override TOutput Call(GenericFuncStruct2<TOutput> genericFunc) => genericFunc.Call<TObj, TValue>();
+        }
+    }
+
+    public static class GenericFuncExtensions
+    {
+        public static TOutput Call<TSelf, TOutput>(
+            this AbstractGenericFunc<TSelf, TOutput> genericFunc,
+            PropertyInfo property)
+            where TSelf : AbstractGenericFunc<TSelf, TOutput>
+        {
+            return genericFunc.Call(property.DeclaringType, property.PropertyType);
+        }
+
+        internal static IEnumerable<Type> GetTypeHierarchy(this Type type)
+        {
+            while (type != null)
+            {
+                yield return type;
+                type = type.BaseType;
+            }
         }
     }
 }

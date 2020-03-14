@@ -8,13 +8,13 @@
     {
         protected override Delegate Call<TStruct>()
         {
-            return Impl<TStruct>.Visitor;
+            return Impl<TStruct>.Instance;
         }
 
         private static class Impl<TStruct>
             where TStruct : struct
         {
-            internal static ProcessObject<MemoryStream, TStruct> Visitor { get; } = Process;
+            internal static ProcessObject<MemoryStream, TStruct> Instance { get; } = Process;
         }
 
         internal static void Process<TStruct>(MemoryStream stream, TStruct value)

@@ -33,7 +33,8 @@
                 Span<byte> span = new Span<byte>(primitivePointer, sizeof(TPrimitive));
                 array = span.ToArray();
             }
-            return new ProcessField<MemoryStream, TObj, TPrimitive>((stream, obj, value) => stream.Write(array));
+            return new ProcessField<MemoryStream, TObj, TPrimitive>(
+                (stream, obj, value) => stream.Write(array));
         }
     }
 }

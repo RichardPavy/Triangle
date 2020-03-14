@@ -8,13 +8,13 @@
     {
         protected override Delegate Call<TPrimitive>()
         {
-            return Impl<TPrimitive>.Visitor;
+            return Impl<TPrimitive>.Instance;
         }
 
         private static class Impl<TPrimitive>
             where TPrimitive : unmanaged
         {
-            internal static ProcessObject<MemoryStream, TPrimitive> Visitor { get; } = Process;
+            internal static ProcessObject<MemoryStream, TPrimitive> Instance { get; } = Process;
         }
 
         internal static void Process<TPrimitive>(MemoryStream stream, TPrimitive value)

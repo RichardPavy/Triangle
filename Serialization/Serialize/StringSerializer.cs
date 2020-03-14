@@ -9,7 +9,8 @@
             (stream, value) =>
             {
                 byte[] bytes = Marshallers<string>.Instance.ToBytes(value);
-                PrimitiveSerializer.Process(stream, bytes.Length);
+                int length = bytes.Length;
+                PrimitiveSerializer.Process(stream, length);
                 stream.Write(bytes);
             };
     }
