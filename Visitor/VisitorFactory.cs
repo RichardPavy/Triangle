@@ -36,7 +36,7 @@
                 visitor =
                     new Lazy<Visitor>(() =>
                     {
-                        VisitorProcessor processor = classProcessorFactory(obj) ?? MustVisitStatus.No;
+                        VisitorProcessor processor = classProcessorFactory(obj);
                         return (Visitor) typeof(ClassVisitor<,>)
                             .MakeGenericType(typeof(TData), obj)
                             .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)

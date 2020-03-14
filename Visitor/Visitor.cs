@@ -42,4 +42,9 @@
 
         internal abstract void Initialize();
     }
+
+    public enum MustVisitStatus
+    {
+        Yes, No, Never
+    }
 }

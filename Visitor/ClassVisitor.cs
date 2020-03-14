@@ -10,14 +10,14 @@
     {
         private readonly Lazy<ImmutableArray<FieldVisitor<TData, TObj>>> allFieldVisitors;
         private readonly Lazy<ImmutableArray<FieldVisitor<TData, TObj>>> enabledFieldVisitors;
-        private readonly Process<TData, TObj> process;
+        private readonly ProcessObject<TData, TObj> process;
 
         // Faster access than Lazy fields.
         private FieldVisitor<TData, TObj>[] enabledFieldVisitorsCache = null;
 
         internal ClassVisitor(
             VisitorFactory<TData> visitorFactory,
-            Process<TData, TObj> process,
+            ProcessObject<TData, TObj> process,
             MustVisitStatus mustVisit) : base(mustVisit)
         {
             allFieldVisitors =

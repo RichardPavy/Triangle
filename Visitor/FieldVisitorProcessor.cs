@@ -24,10 +24,5 @@
 
     }
 
-    public enum MustVisitStatus
-    {
-        Yes, No, Never
-    }
-
-    public delegate void Process<TData, TObj>(TData data, TObj obj);
+    public delegate void ProcessField<TData, TObj, TValue>(TData data, TObj obj, TValue value);
 }

@@ -17,14 +17,14 @@
     {
         private readonly PropertyInfo property;
         private readonly ClassVisitor<TData, V> classVisitor;
-        private readonly Process<TData, V> process;
+        private readonly ProcessField<TData, TObj, V> process;
 
         private IGetter<TObj, V> getter;
 
         internal FieldVisitor(
             VisitorFactory<TData> visitorFactory,
             PropertyInfo property,
-            Process<TData, V> process,
+            ProcessField<TData, TObj, V> process,
             MustVisitStatus mustVisit) : base(mustVisit)
         {
             this.property = property;
@@ -35,7 +35,7 @@
         internal override void Visit(TData data, TObj obj)
         {
             V value = getter.Apply(obj);
-            if (MustVisit == MustVisitStatus.Yes) process(data, value);
+            if (MustVisit == MustVisitStatus.Yes) process(data, obj, value);
             classVisitor.Visit(data, value);
         }
 
