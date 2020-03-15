@@ -15,9 +15,18 @@
                 return new ProcessField<Stream, TObj, TPrimitive>(
                     (Stream stream, TObj obj, TPrimitive oldValue) =>
                     {
-                        setter.Apply(obj, Read<TPrimitive>(stream));
+                        setter.Apply(obj, Impl<TPrimitive>.Instance(stream));
                     });
             };
+        }
+
+        internal static class Impl<TPrimitive>
+            where TPrimitive : unmanaged
+        {
+            internal static Func<Stream, TPrimitive> Instance { get; } =
+                typeof(TPrimitive) == typeof(int)
+                    ? (Func<Stream, TPrimitive>) (Delegate) new Func<Stream, int>(Read7BitEncodedInt)
+                    : Read<TPrimitive>;
         }
 
         internal static TPrimitive Read<TPrimitive>(Stream stream)

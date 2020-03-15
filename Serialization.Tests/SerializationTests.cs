@@ -15,6 +15,7 @@ namespace Serialization.Tests
                     MyStringProp = "abc",
                     MyIntProp = 123,
                 });
+            Console.WriteLine($"MyClass bytes = {string.Join(",", myClassBytes)}");
             MyClass myClassDeserialized =
                 Deserializer.Deserialize<MyClass>(myClassBytes);
             Assert.Equal("abc", myClassDeserialized.MyStringProp);

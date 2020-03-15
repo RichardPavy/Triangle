@@ -21,7 +21,7 @@
                 return new ProcessField<Stream, TObj, TValue>(
                     (Stream stream, TObj obj, TValue value) =>
                     {
-                        int actualTag = PrimitiveDeserializer.Read<int>(stream);
+                        int actualTag = PrimitiveDeserializer.Impl<int>.Instance(stream);
                         if (tag != actualTag)
                         {
                             throw new InvalidOperationException(

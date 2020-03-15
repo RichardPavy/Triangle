@@ -26,12 +26,10 @@
         protected override Delegate Call<TObj, TValue>()
         {
             byte[] array;
-            unsafe
+            using (var stream = new MemoryStream())
             {
-                TPrimitive primitiveLocal = primitive;
-                void* primitivePointer = &primitiveLocal;
-                Span<byte> span = new Span<byte>(primitivePointer, sizeof(TPrimitive));
-                array = span.ToArray();
+                PrimitiveSerializer.Impl<TPrimitive>.Instance(stream, primitive);
+                array = stream.ToArray();
             }
             return new ProcessField<Stream, TObj, TValue>(
                 (stream, obj, value) => stream.Write(array));

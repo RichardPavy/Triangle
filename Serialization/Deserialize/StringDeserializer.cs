@@ -15,7 +15,7 @@
                 return new ProcessField<Stream, TObj, string>(
                     (Stream stream, TObj obj, string oldValue) =>
                     {
-                        int length = PrimitiveDeserializer.Read<int>(stream);
+                        int length = PrimitiveDeserializer.Impl<int>.Instance(stream);
                         byte[] bytes = new byte[length];
                         stream.Read(bytes, 0, length);
                         string newValue = Marshallers<string>.Instance.FromBytes(bytes);

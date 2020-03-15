@@ -8,10 +8,19 @@
     {
         protected override Delegate Call<TPrimitive>()
         {
-            return new ProcessObject<Stream, TPrimitive>(Process);
+            return Impl<TPrimitive>.Instance;
         }
 
-        internal static void Process<TPrimitive>(Stream stream, TPrimitive value)
+        internal static class Impl<TPrimitive>
+            where TPrimitive : unmanaged
+        {
+            internal static ProcessObject<Stream, TPrimitive> Instance { get; } =
+                typeof(TPrimitive) == typeof(int)
+                    ? (ProcessObject<Stream, TPrimitive>) (Delegate) new ProcessObject<Stream, int>(Write7BitEncodedInt)
+                    : Write;
+        }
+
+        private static void Write<TPrimitive>(Stream stream, TPrimitive value)
             where TPrimitive : unmanaged
         {
             unsafe
@@ -23,7 +32,7 @@
         }
 
         // Copied from System.IO.System.BinaryWriter
-        internal static void Write7BitEncodedInt(int value, Stream stream)
+        private static void Write7BitEncodedInt(Stream stream, int value)
         {
             // Write out an int 7 bits at a time.  The high bit of the byte,
             // when on, tells reader to continue reading more bytes.
