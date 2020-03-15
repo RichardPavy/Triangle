@@ -14,8 +14,8 @@
             return property =>
             {
                 ISetter<TObj, TStruct> setter = Setter.Create<TObj, TStruct>(property);
-                return new ProcessField<MemoryStream, TObj, TStruct>(
-                    (MemoryStream stream, TObj obj, TStruct oldValue) =>
+                return new ProcessField<Stream, TObj, TStruct>(
+                    (Stream stream, TObj obj, TStruct oldValue) =>
                     {
                         byte[] bytes = new byte[size];
                         stream.Read(bytes, 0, size);

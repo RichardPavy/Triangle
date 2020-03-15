@@ -13,7 +13,7 @@
         }
     }
 
-    internal class ConstSerializer<TPrimitive> : GenericFunc<Delegate>
+    internal class ConstSerializer<TPrimitive> : GenericFunc2<Delegate>
         where TPrimitive : unmanaged
     {
         private readonly TPrimitive primitive;
@@ -23,7 +23,7 @@
             this.primitive = primitive;
         }
 
-        protected override Delegate Call<TObj>()
+        protected override Delegate Call<TObj, TValue>()
         {
             byte[] array;
             unsafe
@@ -33,7 +33,7 @@
                 Span<byte> span = new Span<byte>(primitivePointer, sizeof(TPrimitive));
                 array = span.ToArray();
             }
-            return new ProcessField<MemoryStream, TObj, TPrimitive>(
+            return new ProcessField<Stream, TObj, TValue>(
                 (stream, obj, value) => stream.Write(array));
         }
     }

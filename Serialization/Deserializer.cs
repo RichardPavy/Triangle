@@ -9,6 +9,15 @@
 
     public static class Deserializer
     {
+        public static T Deserialize<T>(byte[] bytes)
+            where T : new()
+        {
+            using (var stream = new MemoryStream(bytes))
+            {
+                return Deserialize<T>(stream);
+            }
+        }
+
         public static T Deserialize<T>(Stream stream)
             where T : new()
         {
@@ -31,28 +40,40 @@
                         // Don't serialize the object itself. Will serialize field by field.
                         return MustVisitStatus.No;
                     }
-                    throw new InvalidOperationException($"Unable to create serializer for {type}");
+                    if (type.IsPrimitive || type == typeof(string) || type.IsValueType)
+                    {
+                        return MustVisitStatus.Never;
+                    }
+                    throw new InvalidOperationException($"Unable to create deserializer for {type}");
                 },
                 property =>
                 {
+                    Delegate deserializer;
+                    if(property.PropertyType.IsPrimitive)
+                    {
+                        deserializer = new PrimitiveDeserializer().Call(property)(property);
+                    }
+                    else if(property.PropertyType == typeof(string))
+                    {
+                        deserializer = new StringDeserializer().Call(property.DeclaringType)(property);
+                    }
+                    else if(property.PropertyType.IsValueType)
+                    {
+                        deserializer = new StructDeserializer().Call(property)(property);
+                    }
+                    else
+                    {
+                        return MustVisitStatus.Never;
+                    }
+
                     var tag = property.GetCustomAttributes(typeof(TagAttribute)).Cast<TagAttribute>().SingleOrDefault()?.Tag;
                     if (tag != null)
                     {
-                        return new TagCheck(tag.Value).Call(property);
+                        deserializer = Delegate.Combine(
+                            new TagCheck(tag.Value).Call(property)(property),
+                            deserializer);
                     }
-                    if (property.PropertyType.IsPrimitive)
-                    {
-                        return new PrimitiveDeserializer().Call(property);
-                    }
-                    if (property.PropertyType == typeof(string))
-                    {
-                        return new StringDeserializer().Call(property.DeclaringType)(property);
-                    }
-                    if (property.PropertyType.IsValueType)
-                    {
-                        return new StructDeserializer().Call(property)(property);
-                    }
-                    return MustVisitStatus.Never;
+                    return deserializer;
                 });
     }
 }

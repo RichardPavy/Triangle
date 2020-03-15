@@ -18,8 +18,8 @@
         {
             return property =>
             {
-                return new ProcessField<MemoryStream, TObj, TValue>(
-                    (MemoryStream stream, TObj obj, TValue value) =>
+                return new ProcessField<Stream, TObj, TValue>(
+                    (Stream stream, TObj obj, TValue value) =>
                     {
                         int actualTag = PrimitiveDeserializer.Read<int>(stream);
                         if (tag != actualTag)

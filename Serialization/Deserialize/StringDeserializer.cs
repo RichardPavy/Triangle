@@ -12,8 +12,8 @@
             return property =>
             {
                 ISetter<TObj, string> setter = Setter.Create<TObj, string>(property);
-                return new ProcessField<MemoryStream, TObj, string>(
-                    (MemoryStream stream, TObj obj, string oldValue) =>
+                return new ProcessField<Stream, TObj, string>(
+                    (Stream stream, TObj obj, string oldValue) =>
                     {
                         int length = PrimitiveDeserializer.Read<int>(stream);
                         byte[] bytes = new byte[length];

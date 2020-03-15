@@ -14,10 +14,10 @@
         private static class Impl<TStruct>
             where TStruct : struct
         {
-            internal static ProcessObject<MemoryStream, TStruct> Instance { get; } = Process;
+            internal static ProcessObject<Stream, TStruct> Instance { get; } = Process;
         }
 
-        internal static void Process<TStruct>(MemoryStream stream, TStruct value)
+        internal static void Process<TStruct>(Stream stream, TStruct value)
             where TStruct : struct
         {
             byte[] valueBytes = Marshallers<TStruct>.Instance.ToBytes(value);

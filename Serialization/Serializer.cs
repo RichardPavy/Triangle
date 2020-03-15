@@ -7,7 +7,7 @@
     using Serialization.Serialize;
     using Visitors;
 
-    public static partial class Serializer
+    public static class Serializer
     {
         public static byte[] Serialize<T>(T value)
         {
@@ -18,16 +18,21 @@
             }
         }
 
-        private static class SerializerVisitorFactory<T>
+        public static void Serialize<T>(T value, Stream stream)
         {
-            internal static readonly ClassVisitor<MemoryStream, T> Visitor = visitorFactory.GetClassVisitor<T>();
+            SerializerVisitorFactory<T>.Visitor.Visit(stream, value);
         }
 
-        private static readonly VisitorFactory<MemoryStream> visitorFactory =
-            new VisitorFactory<MemoryStream>(
+        private static class SerializerVisitorFactory<T>
+        {
+            internal static readonly ClassVisitor<Stream, T> Visitor = visitorFactory.GetClassVisitor<T>();
+        }
+
+        private static readonly VisitorFactory<Stream> visitorFactory =
+            new VisitorFactory<Stream>(
                 type =>
                 {
-                    if (type.GetCustomAttributes(typeof(AutoSerializeAttribute)).Any())
+                    if (type.GetCustomAttributes<AutoSerializeAttribute>().Any())
                     {
                         // Don't serialize the object itself. Will serialize field by field.
                         return MustVisitStatus.No;
@@ -51,7 +56,7 @@
                     var tag = property.GetCustomAttributes(typeof(TagAttribute)).Cast<TagAttribute>().SingleOrDefault()?.Tag;
                     if (tag != null)
                     {
-                        return ConstSerializer.Create(tag.Value).Call(property.DeclaringType);
+                        return ConstSerializer.Create(tag.Value).Call(property);
                     }
                     return MustVisitStatus.Never;
                 });

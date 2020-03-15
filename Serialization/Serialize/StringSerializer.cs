@@ -5,7 +5,7 @@
 
     internal static class StringSerializer
     {
-        internal static ProcessObject<MemoryStream, string> Instance { get; } =
+        internal static ProcessObject<Stream, string> Instance { get; } =
             (stream, value) =>
             {
                 byte[] bytes = Marshallers<string>.Instance.ToBytes(value);
