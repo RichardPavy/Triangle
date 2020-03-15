@@ -13,11 +13,9 @@
         public TOutput Call(params Type[] types)
         {
             GenericFuncCaller genericFuncCaller =
-                (GenericFuncCaller)
-                GenericFuncCallerType.MakeGenericType(types)
-                    .GetConstructors(BindingFlags.Instance | BindingFlags.NonPublic)
-                    .Single()
-                    .Invoke(new object[0]);
+                (GenericFuncCaller) Activator.CreateInstance(
+                    GenericFuncCallerType.MakeGenericType(new Type[] { typeof(TOutput) }.Concat(types).ToArray()),
+                    true);
             return genericFuncCaller.Call(Self);
         }
 
@@ -32,7 +30,7 @@
             GetType()
                 .GetTypeHierarchy()
                 .SelectMany(type => type.GetNestedTypes(BindingFlags.NonPublic))
-                .Where(type => type.GetCustomAttribute<GenericFuncCallerAttribute>() != null)
+                .Where(type => type.GetCustomAttribute<GenericFuncCallerAttribute>(inherit: true) != null)
                 .First();
     }
 
