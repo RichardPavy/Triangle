@@ -14,7 +14,13 @@
         {
             using (var stream = new MemoryStream(bytes))
             {
-                return Deserialize<T>(stream);
+                var result = Deserialize<T>(stream);
+                if (stream.Length != stream.Position)
+                {
+                    throw new InvalidOperationException(
+                        $"There were {stream.Length - stream.Position} bytes remaining in the stream.");
+                }
+                return result;
             }
         }
 
@@ -49,15 +55,15 @@
                 property =>
                 {
                     Delegate deserializer;
-                    if(property.PropertyType.IsPrimitive)
+                    if (property.PropertyType.IsPrimitive)
                     {
                         deserializer = new PrimitiveDeserializer().Call(property)(property);
                     }
-                    else if(property.PropertyType == typeof(string))
+                    else if (property.PropertyType == typeof(string))
                     {
                         deserializer = new StringDeserializer().Call(property.DeclaringType)(property);
                     }
-                    else if(property.PropertyType.IsValueType)
+                    else if (property.PropertyType.IsValueType)
                     {
                         deserializer = new StructDeserializer().Call(property)(property);
                     }

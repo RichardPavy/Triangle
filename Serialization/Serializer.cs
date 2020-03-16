@@ -58,7 +58,7 @@
                     {
                         return ConstSerializer.Create(tag.Value).Call(property);
                     }
-                    return MustVisitStatus.Never;
+                    return MustVisitStatus.No;
                 });
     }
 }
