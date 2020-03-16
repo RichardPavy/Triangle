@@ -32,7 +32,11 @@
                 array = stream.ToArray();
             }
             return new ProcessField<Stream, TObj, TValue>(
-                (stream, obj, value) => stream.Write(array));
+                (stream, obj, value) =>
+                {
+                    stream.Write(array);
+                    return VisitStatus.SkipChildren;
+                });
         }
     }
 }

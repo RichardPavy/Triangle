@@ -20,7 +20,7 @@
                     : Write;
         }
 
-        private static void Write<TPrimitive>(Stream stream, TPrimitive value)
+        private static VisitStatus Write<TPrimitive>(Stream stream, TPrimitive value)
             where TPrimitive : unmanaged
         {
             unsafe
@@ -29,10 +29,11 @@
                 Span<byte> span = new Span<byte>(valuePointer, sizeof(TPrimitive));
                 stream.Write(span);
             }
+            return VisitStatus.SkipChildren;
         }
 
         // Copied from System.IO.System.BinaryWriter
-        private static void Write7BitEncodedInt(Stream stream, int value)
+        private static VisitStatus Write7BitEncodedInt(Stream stream, int value)
         {
             // Write out an int 7 bits at a time.  The high bit of the byte,
             // when on, tells reader to continue reading more bytes.
@@ -43,6 +44,7 @@
                 v >>= 7;
             }
             stream.WriteByte((byte) v);
+            return VisitStatus.SkipChildren;
         }
     }
 }

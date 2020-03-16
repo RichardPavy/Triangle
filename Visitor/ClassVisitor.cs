@@ -48,12 +48,25 @@
                 fieldVisitor.Initialize();
         }
 
-        public void Visit(TData data, TObj obj)
+        public VisitStatus Visit(TData data, TObj obj)
         {
-            if (MustVisit == MustVisitStatus.Yes) process(data, obj);
+            VisitStatus visitStatus =
+                MustVisit == MustVisitStatus.Yes
+                    ? process(data, obj)
+                    : VisitStatus.Continue;
 
-            foreach (var fieldVisitor in enabledFieldVisitorsCache)
-                fieldVisitor.Visit(data, obj);
+            if (visitStatus == VisitStatus.Continue)
+            {
+                foreach (var fieldVisitor in enabledFieldVisitorsCache)
+                {
+                    if (fieldVisitor.Visit(data, obj) == VisitStatus.Exit)
+                    {
+                        return VisitStatus.Exit;
+                    }
+                }
+            }
+
+            return visitStatus;
         }
 
         protected override IEnumerable<Visitor> ChildVisitors() =>

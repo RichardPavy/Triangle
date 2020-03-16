@@ -10,7 +10,7 @@
         {
         }
 
-        internal abstract void Visit(TData data, TObj obj);
+        internal abstract VisitStatus Visit(TData data, TObj obj);
     }
 
     internal sealed class FieldVisitor<TData, TObj, V> : FieldVisitor<TData, TObj>
@@ -32,11 +32,24 @@
             this.process = process;
         }
 
-        internal override void Visit(TData data, TObj obj)
+        internal override VisitStatus Visit(TData data, TObj obj)
         {
             V value = getter.Apply(obj);
-            if (MustVisit == MustVisitStatus.Yes) process(data, obj, value);
-            classVisitor.Visit(data, value);
+
+            VisitStatus visitStatus =
+                MustVisit == MustVisitStatus.Yes
+                    ? process(data, obj, value)
+                    : VisitStatus.Continue;
+
+            if (visitStatus == VisitStatus.Continue)
+            {
+                if (classVisitor.Visit(data, value) == VisitStatus.Exit)
+                {
+                    return VisitStatus.Exit;
+                }
+            }
+
+            return visitStatus;
         }
 
         protected override IEnumerable<Visitor> ChildVisitors() =>

@@ -20,6 +20,7 @@
                         stream.Read(bytes, 0, length);
                         string newValue = Marshallers<string>.Instance.FromBytes(bytes);
                         setter.Apply(obj, newValue);
+                        return VisitStatus.SkipChildren;
                     });
             };
         }

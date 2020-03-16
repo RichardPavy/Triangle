@@ -18,13 +18,25 @@ namespace Visitors.Tests
                         {
                             if (typeof(Rectangle).IsAssignableFrom(type))
                                 return new ProcessObject<StringBuilder, Rectangle>(
-                                    (sb, rectangle) => sb.Append("Rectangle;"));
+                                    (sb, rectangle) =>
+                                    {
+                                        sb.Append("Rectangle;");
+                                        return VisitStatus.Continue;
+                                    });
                             if (typeof(string).IsAssignableFrom(type))
                                 return new ProcessObject<StringBuilder, string>(
-                                    (sb, @string) => sb.Append($"string:{@string};"));
+                                    (sb, @string) =>
+                                    {
+                                        sb.Append($"string:{@string};");
+                                        return VisitStatus.Continue;
+                                    });
                             if (typeof(int).IsAssignableFrom(type))
                                 return new ProcessObject<StringBuilder, int>(
-                                    (sb, @int) => sb.Append($"int:{@int};"));
+                                    (sb, @int) =>
+                                    {
+                                        sb.Append($"int:{@int};");
+                                        return VisitStatus.Continue;
+                                    });
                             return MustVisitStatus.No;
                         },
                     property =>
@@ -62,7 +74,11 @@ namespace Visitors.Tests
             protected override Delegate Call<TObj>()
             {
                 return new ProcessField<StringBuilder, TObj, int>(
-                    (sb, @obj, @int) => sb.Append($"{property.DeclaringType.Name}.{property.Name}=int:{@int};"));
+                    (sb, @obj, @int) =>
+                    {
+                        sb.Append($"{property.DeclaringType.Name}.{property.Name}=int:{@int};");
+                        return VisitStatus.Continue;
+                    });
             }
         }
 
@@ -78,7 +94,11 @@ namespace Visitors.Tests
             protected override Delegate Call<TObj>()
             {
                 return new ProcessField<StringBuilder, TObj, string>(
-                    (sb, @obj, @string) => sb.Append($"{property.DeclaringType.Name}.{property.Name}=string:{@string};"));
+                    (sb, @obj, @string) =>
+                    {
+                        sb.Append($"{property.DeclaringType.Name}.{property.Name}=string:{@string};");
+                        return VisitStatus.Continue;
+                    });
             }
         }
     }

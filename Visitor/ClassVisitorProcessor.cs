@@ -24,5 +24,5 @@
 
     }
 
-    public delegate void ProcessObject<TData, TObj>(TData data, TObj obj);
+    public delegate VisitStatus ProcessObject<TData, TObj>(TData data, TObj obj);
 }

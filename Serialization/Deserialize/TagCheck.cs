@@ -27,6 +27,7 @@
                             throw new InvalidOperationException(
                                 $"Expected tag {tag}, got {actualTag}, for {property.DeclaringType}.{property.Name}");
                         }
+                        return VisitStatus.SkipChildren;
                     });
             };
         }

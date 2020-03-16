@@ -16,6 +16,7 @@
                     (Stream stream, TObj obj, TPrimitive oldValue) =>
                     {
                         setter.Apply(obj, Impl<TPrimitive>.Instance(stream));
+                        return VisitStatus.SkipChildren;
                     });
             };
         }

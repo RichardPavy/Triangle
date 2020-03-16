@@ -47,4 +47,9 @@
     {
         Yes, No, Never
     }
+
+    public enum VisitStatus
+    {
+        Continue, SkipChildren, Exit
+    }
 }

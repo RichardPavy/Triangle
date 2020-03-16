@@ -21,6 +21,7 @@
                         stream.Read(bytes, 0, size);
                         TStruct newValue = Marshallers<TStruct>.Instance.FromBytes(bytes);
                         setter.Apply(obj, newValue);
+                        return VisitStatus.SkipChildren;
                     });
             };
         }

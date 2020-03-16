@@ -12,6 +12,7 @@
                 int length = bytes.Length;
                 PrimitiveSerializer.Impl<int>.Instance(stream, length);
                 stream.Write(bytes);
+                return VisitStatus.SkipChildren;
             };
     }
 }

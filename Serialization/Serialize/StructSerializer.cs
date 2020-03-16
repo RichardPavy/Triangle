@@ -17,11 +17,12 @@
             internal static ProcessObject<Stream, TStruct> Instance { get; } = Process;
         }
 
-        internal static void Process<TStruct>(Stream stream, TStruct value)
+        internal static VisitStatus Process<TStruct>(Stream stream, TStruct value)
             where TStruct : struct
         {
             byte[] valueBytes = Marshallers<TStruct>.Instance.ToBytes(value);
             stream.Write(valueBytes);
+            return VisitStatus.SkipChildren;
         }
     }
 }
