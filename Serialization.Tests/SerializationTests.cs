@@ -4,7 +4,6 @@ namespace Serialization.Tests
     using System.Linq;
     using Serialization;
     using Xunit;
-    using Xunit.Sdk;
 
     public class SerializationTests
     {
@@ -51,7 +50,6 @@ namespace Serialization.Tests
             Assert.Contains("There were 4 bytes remaining in the stream.", exception.Message);
         }
 
-        [AutoSerialize]
         internal class MyClass
         {
             [Tag(1)]
@@ -61,9 +59,10 @@ namespace Serialization.Tests
             internal int MyIntProp { get; set; }
 
             internal int NoTag { get; set; }
+
+            internal MyClass2 MyClass2 { get; set; }
         }
 
-        [AutoSerialize]
         internal class MyClass2
         {
             [Tag(1)]
