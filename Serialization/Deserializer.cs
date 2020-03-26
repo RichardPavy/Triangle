@@ -41,14 +41,13 @@
             new VisitorFactory<Stream>(
                 type =>
                 {
-                    if (type.GetCustomAttributes(typeof(AutoSerializeAttribute)).Any())
-                    {
-                        // Don't serialize the object itself. Will serialize field by field.
-                        return MustVisitStatus.No;
-                    }
                     if (type.IsPrimitive || type == typeof(string) || type.IsValueType)
                     {
                         return MustVisitStatus.Never;
+                    }
+                    if (type.HasSerializableFields())
+                    {
+                        return new ObjectDeserializer().Call(type);
                     }
                     throw new InvalidOperationException($"Unable to create deserializer for {type}");
                 },
@@ -75,8 +74,8 @@
                     var tag = property.GetCustomAttributes(typeof(TagAttribute)).Cast<TagAttribute>().SingleOrDefault()?.Tag;
                     if (tag != null)
                     {
-                        deserializer = Delegate.Combine(
-                            new TagCheck(tag.Value).Call(property)(property),
+                        deserializer = new TagDeserializer(tag.Value).Call(property)(
+                            property,
                             deserializer);
                     }
                     return deserializer;

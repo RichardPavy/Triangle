@@ -32,11 +32,6 @@
             new VisitorFactory<Stream>(
                 type =>
                 {
-                    if (type.GetCustomAttributes<AutoSerializeAttribute>().Any())
-                    {
-                        // Don't serialize the object itself. Will serialize field by field.
-                        return MustVisitStatus.No;
-                    }
                     if (type.IsPrimitive)
                     {
                         return new PrimitiveSerializer().Call(type);
@@ -49,14 +44,18 @@
                     {
                         return new StructSerializer().Call(type);
                     }
+                    if (type.HasSerializableFields())
+                    {
+                        return new ObjectSerializer().Call(type);
+                    }
                     throw new InvalidOperationException($"Unable to create serializer for ${type}");
                 },
                 property =>
                 {
-                    var tag = property.GetCustomAttributes(typeof(TagAttribute)).Cast<TagAttribute>().SingleOrDefault()?.Tag;
+                    var tag = property.GetCustomAttributes<TagAttribute>().SingleOrDefault()?.Tag;
                     if (tag != null)
                     {
-                        return ConstSerializer.Create(tag.Value).Call(property);
+                        return TagSerializer.Create(tag.Value).Call(property);
                     }
                     return MustVisitStatus.No;
                 });

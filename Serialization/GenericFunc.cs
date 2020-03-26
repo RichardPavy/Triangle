@@ -12,11 +12,19 @@
 
         public TOutput Call(params Type[] types)
         {
+            try {
+            var ooo = Activator.CreateInstance(
+                GenericFuncCallerType.MakeGenericType(new Type[] { typeof(TOutput) }.Concat(types).ToArray()),
+                true);
             GenericFuncCaller genericFuncCaller =
-                (GenericFuncCaller) Activator.CreateInstance(
-                    GenericFuncCallerType.MakeGenericType(new Type[] { typeof(TOutput) }.Concat(types).ToArray()),
-                    true);
+                (GenericFuncCaller) ooo;
             return genericFuncCaller.Call(Self);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.ToString());
+                throw;
+            }
         }
 
         [GenericFuncCaller]
@@ -49,6 +57,17 @@
         }
     }
 
+    public abstract class GenericFunc<TOutput, TSuper> : AbstractGenericFunc<GenericFunc<TOutput, TSuper>, TOutput>
+    {
+        protected abstract TOutput Call<TInput>() where TInput : TSuper;
+
+        private sealed class GenericFuncCaller<TInput> : GenericFuncCaller
+             where TInput : TSuper
+        {
+            internal override TOutput Call(GenericFunc<TOutput, TSuper> genericFunc) => genericFunc.Call<TInput>();
+        }
+    }
+
     public abstract class GenericFuncUnmanaged<TOutput> : AbstractGenericFunc<GenericFuncUnmanaged<TOutput>, TOutput>
     {
         protected abstract TOutput Call<TInput>() where TInput : unmanaged;
@@ -57,6 +76,17 @@
              where TInput : unmanaged
         {
             internal override TOutput Call(GenericFuncUnmanaged<TOutput> genericFunc) => genericFunc.Call<TInput>();
+        }
+    }
+
+    public abstract class GenericFuncClass<TOutput> : AbstractGenericFunc<GenericFuncClass<TOutput>, TOutput>
+    {
+        protected abstract TOutput Call<TInput>() where TInput : class;
+
+        private sealed class GenericFuncCaller<TInput> : GenericFuncCaller
+             where TInput : class
+        {
+            internal override TOutput Call(GenericFuncClass<TOutput> genericFunc) => genericFunc.Call<TInput>();
         }
     }
 
