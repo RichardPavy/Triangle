@@ -1,6 +1,7 @@
 ﻿namespace Serialization
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Reflection;
 
@@ -20,7 +21,7 @@
 
     internal static class TagExtensions
     {
-        internal static bool HasSerializableFields(this Type type) =>
+        internal static IEnumerable<PropertyInfo> SerializableFields(this Type type) =>
             (from property in
                  type.GetProperties(
                      BindingFlags.FlattenHierarchy
@@ -28,6 +29,6 @@
                      | BindingFlags.Public
                      | BindingFlags.NonPublic)
              where property.GetCustomAttributes<TagAttribute>().Any()
-             select property).Any();
+             select property);
     }
 }

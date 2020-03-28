@@ -1,5 +1,6 @@
 ﻿namespace Visitors
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
 
@@ -51,5 +52,26 @@
     public enum VisitStatus
     {
         Continue, SkipChildren, Exit
+    }
+
+    public struct VisitorScope
+    {
+        public readonly VisitStatus Status;
+        public readonly Action After;
+
+        private VisitorScope(VisitStatus status, Action after)
+        {
+            Status = status;
+            After = after;
+        }
+
+        public VisitorScope(Action after)
+        {
+            Status = VisitStatus.Continue;
+            After = after;
+        }
+
+        public static implicit operator VisitorScope(VisitStatus status) =>
+            new VisitorScope(status, null);
     }
 }

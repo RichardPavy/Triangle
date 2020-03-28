@@ -16,8 +16,7 @@
                         return VisitStatus.SkipChildren;
                     }
 
-                    // TODO: Add a '0' at end of object.
-                    return VisitStatus.Continue;
+                    return new VisitorScope(() => stream.WriteByte(0));
                 });
         }
     }

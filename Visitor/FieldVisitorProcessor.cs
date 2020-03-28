@@ -24,5 +24,5 @@
 
     }
 
-    public delegate VisitStatus ProcessField<TData, TObj, TValue>(TData data, TObj obj, TValue value);
+    public delegate VisitorScope ProcessField<TData, TObj, TValue>(TData data, TObj obj, TValue value);
 }

@@ -19,7 +19,7 @@ namespace Serialization.Tests
         public void Serialize()
         {
             Assert.Equal(
-                "1, 3, 97, 98, 99, 2, 128, 4, 123",
+                "1, 3, 97, 98, 99, 2, 128, 4, 123, 0",
                 string.Join(", ", myClassBytes));
         }
 

@@ -45,7 +45,7 @@
                     {
                         return MustVisitStatus.Never;
                     }
-                    if (type.HasSerializableFields())
+                    if (type.SerializableFields().Any())
                     {
                         return new ObjectDeserializer().Call(type);
                     }

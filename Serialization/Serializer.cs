@@ -44,7 +44,7 @@
                     {
                         return new StructSerializer().Call(type);
                     }
-                    if (type.HasSerializableFields())
+                    if (type.SerializableFields().Any())
                     {
                         return new ObjectSerializer().Call(type);
                     }

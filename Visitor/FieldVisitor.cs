@@ -36,20 +36,39 @@
         {
             V value = getter.Apply(obj);
 
-            VisitStatus visitStatus =
-                MustVisit == MustVisitStatus.Yes
-                    ? process(data, obj, value)
-                    : VisitStatus.Continue;
+            if (MustVisit != MustVisitStatus.Yes)
+                return VisitField(data, value, VisitStatus.Continue);
 
-            if (visitStatus == VisitStatus.Continue)
+            VisitorScope scope = process(data, obj, value);
+            if (scope.Status == VisitStatus.Continue)
             {
-                if (classVisitor.Visit(data, value) == VisitStatus.Exit)
+                if (scope.After != null)
                 {
-                    return VisitStatus.Exit;
+                    try
+                    {
+                        return VisitField(data, value, scope.Status);
+                    }
+                    finally
+                    {
+                        scope.After();
+                    }
                 }
+
+                return VisitField(data, value, scope.Status);
             }
 
-            return visitStatus;
+            return scope.Status;
+
+        }
+
+        private VisitStatus VisitField(
+            TData data,
+            V value,
+            VisitStatus defaultStatus)
+        {
+            return classVisitor.Visit(data, value) == VisitStatus.Exit
+                ? VisitStatus.Exit
+                : defaultStatus;
         }
 
         protected override IEnumerable<Visitor> ChildVisitors() =>
