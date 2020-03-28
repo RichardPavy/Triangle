@@ -6,7 +6,7 @@
     using System.Runtime.InteropServices;
     using Visitors;
 
-    internal class StructDeserializer : GenericFuncStruct2<Func<PropertyInfo, Delegate>>
+    internal class StructDeserializer : GenericFunc2Struct<Func<PropertyInfo, Delegate>>
     {
         protected override Func<PropertyInfo, Delegate> Call<TObj, TStruct>()
         {
@@ -15,12 +15,12 @@
             {
                 ISetter<TObj, TStruct> setter = Setter.Create<TObj, TStruct>(property);
                 return new ProcessField<Stream, TObj, TStruct>(
-                    (Stream stream, TObj obj, TStruct oldValue) =>
+                    (Stream stream, TObj obj, ref TStruct value) =>
                     {
                         byte[] bytes = new byte[size];
                         stream.Read(bytes, 0, size);
-                        TStruct newValue = Marshallers<TStruct>.Instance.FromBytes(bytes);
-                        setter.Apply(obj, newValue);
+                        value = Marshallers<TStruct>.Instance.FromBytes(bytes);
+                        setter.Apply(obj, value);
                         return VisitStatus.SkipChildren;
                     });
             };

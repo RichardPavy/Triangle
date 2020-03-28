@@ -74,7 +74,7 @@ namespace Visitors.Tests
             protected override Delegate Call<TObj>()
             {
                 return new ProcessField<StringBuilder, TObj, int>(
-                    (sb, @obj, @int) =>
+                    (StringBuilder sb, TObj @obj, ref int @int) =>
                     {
                         sb.Append($"{property.DeclaringType.Name}.{property.Name}=int:{@int};");
                         return VisitStatus.Continue;
@@ -94,7 +94,7 @@ namespace Visitors.Tests
             protected override Delegate Call<TObj>()
             {
                 return new ProcessField<StringBuilder, TObj, string>(
-                    (sb, @obj, @string) =>
+                    (StringBuilder sb, TObj @obj, ref string @string) =>
                     {
                         sb.Append($"{property.DeclaringType.Name}.{property.Name}=string:{@string};");
                         return VisitStatus.Continue;

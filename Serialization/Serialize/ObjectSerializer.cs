@@ -16,7 +16,7 @@
                         return VisitStatus.SkipChildren;
                     }
 
-                    return new VisitorScope(() => stream.WriteByte(0));
+                    return new Action(() => stream.WriteByte(0));
                 });
         }
     }

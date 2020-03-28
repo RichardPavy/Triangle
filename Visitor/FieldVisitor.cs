@@ -39,7 +39,7 @@
             if (MustVisit != MustVisitStatus.Yes)
                 return VisitField(data, value, VisitStatus.Continue);
 
-            VisitorScope scope = process(data, obj, value);
+            VisitorScope scope = process(data, obj, ref value);
             if (scope.Status == VisitStatus.Continue)
             {
                 if (scope.After != null)

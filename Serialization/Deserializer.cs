@@ -45,9 +45,9 @@
                     {
                         return MustVisitStatus.Never;
                     }
-                    if (type.SerializableFields().Any())
+                    else if (type.SerializableFields().Any())
                     {
-                        return new ObjectDeserializer().Call(type);
+                        return MustVisitStatus.No;
                     }
                     throw new InvalidOperationException($"Unable to create deserializer for {type}");
                 },
@@ -65,6 +65,10 @@
                     else if (property.PropertyType.IsValueType)
                     {
                         deserializer = new StructDeserializer().Call(property)(property);
+                    }
+                    else if (property.PropertyType.SerializableFields().Any())
+                    {
+                        return new ObjectDeserializer().Call(property)(property);
                     }
                     else
                     {

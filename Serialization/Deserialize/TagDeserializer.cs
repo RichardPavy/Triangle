@@ -20,15 +20,21 @@
             {
                 var fieldDeserializer = (ProcessField<Stream, TObj, TValue>) deserializer;
                 return new ProcessField<Stream, TObj, TValue>(
-                    (Stream stream, TObj obj, TValue value) =>
+                    (Stream stream, TObj obj, ref TValue value) =>
                     {
                         int actualTag = PrimitiveDeserializer.Impl<int>.Instance(stream);
                         if (tag != actualTag)
                         {
+                            if (actualTag == 0)
+                            {
+                                stream.Seek(-1, SeekOrigin.Current);
+                                return VisitStatus.SkipChildren;
+                            }
+
                             throw new InvalidOperationException(
                                 $"Expected tag {tag}, got {actualTag}, for {property.DeclaringType}.{property.Name}");
                         }
-                        return fieldDeserializer(stream, obj, value);
+                        return fieldDeserializer(stream, obj, ref value);
                     });
             };
         }

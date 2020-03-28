@@ -2,27 +2,34 @@
 {
     using System;
     using System.IO;
+    using System.Reflection;
     using Visitors;
 
-    internal class ObjectDeserializer : GenericFunc<Delegate>
+    internal class ObjectDeserializer : GenericFunc2New<Func<PropertyInfo, Delegate>>
     {
         private const int EndTag = 0;
 
-        protected override Delegate Call<TObj>()
+        protected override Func<PropertyInfo, Delegate> Call<TObj, TValue>()
         {
-            return new ProcessObject<Stream, TObj>(
-                (Stream stream, TObj value) =>
-                {
-                    return new VisitorScope(() =>
+            return property =>
+            {
+                ISetter<TObj, TValue> setter = Setter.Create<TObj, TValue>(property);
+                return new ProcessField<Stream, TObj, TValue>(
+                    (Stream stream, TObj obj, ref TValue value) =>
                     {
-                        int tag = stream.ReadByte();
-                        if (tag != EndTag)
+                        value = new TValue();
+                        setter.Apply(obj, value);
+                        return new Action(() =>
                         {
-                            throw new InvalidOperationException(
-                                $"Expected end tag {EndTag}, got {tag}");
-                        }
+                            int tag = stream.ReadByte();
+                            if (tag != EndTag)
+                            {
+                                throw new InvalidOperationException(
+                                    $"Expected end tag {EndTag}, got {tag}");
+                            }
+                        });
                     });
-                });
+            };
         }
     }
 }

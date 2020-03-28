@@ -122,14 +122,25 @@
         }
     }
 
-    public abstract class GenericFuncStruct2<TOutput> : AbstractGenericFunc<GenericFuncStruct2<TOutput>, TOutput>
+    public abstract class GenericFunc2Struct<TOutput> : AbstractGenericFunc<GenericFunc2Struct<TOutput>, TOutput>
     {
         protected abstract TOutput Call<TObj, TValue>() where TValue : struct;
 
         private sealed class GenericFuncCaller<TObj, TValue> : GenericFuncCaller
              where TValue : struct
         {
-            internal override TOutput Call(GenericFuncStruct2<TOutput> genericFunc) => genericFunc.Call<TObj, TValue>();
+            internal override TOutput Call(GenericFunc2Struct<TOutput> genericFunc) => genericFunc.Call<TObj, TValue>();
+        }
+    }
+
+    public abstract class GenericFunc2New<TOutput> : AbstractGenericFunc<GenericFunc2New<TOutput>, TOutput>
+    {
+        protected abstract TOutput Call<TObj, TValue>() where TValue : new();
+
+        private sealed class GenericFuncCaller<TObj, TValue> : GenericFuncCaller
+             where TValue : new()
+        {
+            internal override TOutput Call(GenericFunc2New<TOutput> genericFunc) => genericFunc.Call<TObj, TValue>();
         }
     }
 

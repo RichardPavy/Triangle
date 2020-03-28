@@ -39,7 +39,7 @@
                          ? new IsDefaultValue<TValue>().Call(typeof(IEquatable<TValue>), typeof(TValue))
                          : new IsNull<TValue>().Call(typeof(TValue)));
                 return new ProcessField<Stream, TObj, TValue>(
-                    (stream, obj, value) =>
+                    (Stream stream, TObj obj, ref TValue value) =>
                     {
                         if (isDefault(value))
                         {

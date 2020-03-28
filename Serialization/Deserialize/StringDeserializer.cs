@@ -13,13 +13,13 @@
             {
                 ISetter<TObj, string> setter = Setter.Create<TObj, string>(property);
                 return new ProcessField<Stream, TObj, string>(
-                    (Stream stream, TObj obj, string oldValue) =>
+                    (Stream stream, TObj obj, ref string value) =>
                     {
                         int length = PrimitiveDeserializer.Impl<int>.Instance(stream);
                         byte[] bytes = new byte[length];
                         stream.Read(bytes, 0, length);
-                        string newValue = Marshallers<string>.Instance.FromBytes(bytes);
-                        setter.Apply(obj, newValue);
+                        value = Marshallers<string>.Instance.FromBytes(bytes);
+                        setter.Apply(obj, value);
                         return VisitStatus.SkipChildren;
                     });
             };

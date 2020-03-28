@@ -16,7 +16,8 @@
         {
             internal static ProcessObject<Stream, TPrimitive> Instance { get; } =
                 typeof(TPrimitive) == typeof(int)
-                    ? (ProcessObject<Stream, TPrimitive>) (Delegate) new ProcessObject<Stream, int>(Write7BitEncodedInt)
+                    ? (ProcessObject<Stream, TPrimitive>) (Delegate)
+                      new ProcessObject<Stream, int>(Write7BitEncodedInt)
                     : Write;
         }
 

@@ -13,9 +13,10 @@
             {
                 ISetter<TObj, TPrimitive> setter = Setter.Create<TObj, TPrimitive>(property);
                 return new ProcessField<Stream, TObj, TPrimitive>(
-                    (Stream stream, TObj obj, TPrimitive oldValue) =>
+                    (Stream stream, TObj obj, ref TPrimitive value) =>
                     {
-                        setter.Apply(obj, Impl<TPrimitive>.Instance(stream));
+                        value = Impl<TPrimitive>.Instance(stream);
+                        setter.Apply(obj, value);
                         return VisitStatus.SkipChildren;
                     });
             };

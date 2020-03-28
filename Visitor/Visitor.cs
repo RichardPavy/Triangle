@@ -65,12 +65,8 @@
             After = after;
         }
 
-        public VisitorScope(Action after)
-        {
-            Status = VisitStatus.Continue;
-            After = after;
-        }
-
+        public static implicit operator VisitorScope(Action after) =>
+            new VisitorScope(VisitStatus.Continue, after);
         public static implicit operator VisitorScope(VisitStatus status) =>
             new VisitorScope(status, null);
     }
