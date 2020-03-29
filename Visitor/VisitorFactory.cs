@@ -23,10 +23,14 @@
 
         public ClassVisitor<TData, TObj> GetClassVisitor<TObj>()
         {
-            ClassVisitor<TData, TObj> classVisitor =
-                (ClassVisitor<TData, TObj>) CreateClassVisitor(typeof(TObj)).Value;
+            ClassVisitor<TData, TObj> classVisitor = GetClassVisitorImpl<TObj>();
             classVisitor.Initialize();
             return classVisitor;
+        }
+
+        public ClassVisitor<TData, TObj> GetClassVisitorImpl<TObj>()
+        {
+            return (ClassVisitor<TData, TObj>)CreateClassVisitor(typeof(TObj)).Value;
         }
 
         private Lazy<Visitor> CreateClassVisitor(Type obj)

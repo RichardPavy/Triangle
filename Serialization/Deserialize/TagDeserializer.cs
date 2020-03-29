@@ -1,7 +1,6 @@
 ﻿namespace Serialization.Deserialize
 {
     using System;
-    using System.IO;
     using System.Reflection;
     using Visitors;
 
@@ -18,23 +17,16 @@
         {
             return (property, deserializer) =>
             {
-                var fieldDeserializer = (ProcessField<Stream, TObj, TValue>) deserializer;
-                return new ProcessField<Stream, TObj, TValue>(
-                    (Stream stream, TObj obj, ref TValue value) =>
+                var fieldDeserializer = (ProcessField<DeserializeContext, TObj, TValue>) deserializer;
+                return new ProcessField<DeserializeContext, TObj, TValue>(
+                    (DeserializeContext context, TObj obj, ref TValue value) =>
                     {
-                        int actualTag = PrimitiveDeserializer.Impl<int>.Instance(stream);
+                        int actualTag = context.LastTag;
                         if (tag != actualTag)
-                        {
-                            if (actualTag == 0)
-                            {
-                                stream.Seek(-1, SeekOrigin.Current);
-                                return VisitStatus.SkipChildren;
-                            }
+                            return VisitStatus.SkipChildren;
 
-                            throw new InvalidOperationException(
-                                $"Expected tag {tag}, got {actualTag}, for {property.DeclaringType}.{property.Name}");
-                        }
-                        return fieldDeserializer(stream, obj, ref value);
+                        context.ClearLastTag();
+                        return fieldDeserializer(context, obj, ref value);
                     });
             };
         }

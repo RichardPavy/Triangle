@@ -28,7 +28,7 @@
             MustVisitStatus mustVisit) : base(mustVisit)
         {
             this.property = property;
-            this.classVisitor = visitorFactory.GetClassVisitor<V>();
+            this.classVisitor = visitorFactory.GetClassVisitorImpl<V>();
             this.process = process;
         }
 
@@ -40,25 +40,11 @@
                 return VisitField(data, value, VisitStatus.Continue);
 
             VisitorScope scope = process(data, obj, ref value);
-            if (scope.Status == VisitStatus.Continue)
-            {
-                if (scope.After != null)
-                {
-                    try
-                    {
-                        return VisitField(data, value, scope.Status);
-                    }
-                    finally
-                    {
-                        scope.After();
-                    }
-                }
-
-                return VisitField(data, value, scope.Status);
-            }
-
-            return scope.Status;
-
+            VisitStatus result = scope.Status == VisitStatus.Continue
+                ? VisitField(data, value, scope.Status)
+                : scope.Status;
+            scope.After?.Invoke();
+            return result;
         }
 
         private VisitStatus VisitField(
@@ -76,7 +62,11 @@
 
         internal override void Initialize()
         {
-            getter = Getter.Create<TObj, V>(this.property);
+            if (this.getter == null)
+            {
+                this.getter = Getter.Create<TObj, V>(this.property);
+                this.classVisitor.Initialize();
+            }
         }
     }
 }

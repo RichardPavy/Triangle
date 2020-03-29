@@ -69,5 +69,10 @@
             new VisitorScope(VisitStatus.Continue, after);
         public static implicit operator VisitorScope(VisitStatus status) =>
             new VisitorScope(status, null);
+
+        public static VisitorScope operator +(VisitorScope scope, Action andThen)
+        {
+            return new VisitorScope(scope.Status, scope.After + andThen);
+        }
     }
 }

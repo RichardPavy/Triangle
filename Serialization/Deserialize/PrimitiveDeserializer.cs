@@ -12,10 +12,10 @@
             return property =>
             {
                 ISetter<TObj, TPrimitive> setter = Setter.Create<TObj, TPrimitive>(property);
-                return new ProcessField<Stream, TObj, TPrimitive>(
-                    (Stream stream, TObj obj, ref TPrimitive value) =>
+                return new ProcessField<DeserializeContext, TObj, TPrimitive>(
+                    (DeserializeContext context, TObj obj, ref TPrimitive value) =>
                     {
-                        value = Impl<TPrimitive>.Instance(stream);
+                        value = Impl<TPrimitive>.Instance(context.Stream);
                         setter.Apply(obj, value);
                         return VisitStatus.SkipChildren;
                     });

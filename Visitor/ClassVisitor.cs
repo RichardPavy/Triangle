@@ -43,35 +43,23 @@
         internal override void Initialize()
         {
             if (enabledFieldVisitorsCache == null)
+            {
                 enabledFieldVisitorsCache = enabledFieldVisitors.Value.ToArray();
-            foreach (var fieldVisitor in enabledFieldVisitorsCache)
-                fieldVisitor.Initialize();
+                foreach (var fieldVisitor in enabledFieldVisitorsCache)
+                    fieldVisitor.Initialize();
+            }
         }
 
         public VisitStatus Visit(TData data, TObj obj)
         {
             if (MustVisit != MustVisitStatus.Yes)
                 return VisitFields(data, obj, VisitStatus.Continue);
-
             VisitorScope scope = process(data, obj);
-            if (scope.Status == VisitStatus.Continue)
-            {
-                if (scope.After != null)
-                {
-                    try
-                    {
-                        return VisitFields(data, obj, scope.Status);
-                    }
-                    finally
-                    {
-                        scope.After();
-                    }
-                }
-
-                return VisitFields(data, obj, scope.Status);
-            }
-
-            return scope.Status;
+            VisitStatus result = scope.Status == VisitStatus.Continue
+                ? VisitFields(data, obj, scope.Status)
+                : scope.Status;
+            scope.After?.Invoke();
+            return result;
         }
 
         private VisitStatus VisitFields(

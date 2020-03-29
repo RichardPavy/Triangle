@@ -11,12 +11,12 @@
             return new ProcessObject<Stream, TObj>(
                 (Stream stream, TObj value) =>
                 {
-                    if (value == null)
-                    {
-                        return VisitStatus.SkipChildren;
-                    }
-
-                    return new Action(() => stream.WriteByte(0));
+                    Action writeEndOfObject = () => stream.WriteByte(0);
+                    VisitorScope scope =
+                        value != null
+                            ? VisitStatus.Continue
+                            : VisitStatus.SkipChildren;
+                    return scope + writeEndOfObject;
                 });
         }
     }
