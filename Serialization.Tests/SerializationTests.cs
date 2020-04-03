@@ -149,5 +149,39 @@ namespace Serialization.Tests
             [Tag(4)]
             internal MyClass MyClass { get; set; }
         }
+
+        [Fact]
+        public void ParentChild()
+        {
+            var parent = new ParentKey { Domain = 100, Id = 101 };
+            var child = new ChildKey { Parent = parent, Id = 102 };
+
+            byte[] parentBytes = Serializer.Serialize(parent);
+            byte[] childBytes = Serializer.Serialize(child);
+
+            Assert.Equal(
+                "1, 100, 2, 101, 0",
+                string.Join(", ", parentBytes));
+            Assert.Equal(
+                "1, 100, 2, 101, 0, 3, 102, 0",
+                string.Join(", ", childBytes));
+        }
+
+        internal class ParentKey
+        {
+            [Tag(1)]
+            internal int Domain { get; set; }
+
+            [Tag(2)]
+            internal int Id { get; set; }
+        }
+
+        internal class ChildKey
+        {
+            internal ParentKey Parent { get; set; }
+
+            [Tag(3)]
+            internal int Id { get; set; }
+        }
     }
 }
