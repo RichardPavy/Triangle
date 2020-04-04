@@ -1,4 +1,4 @@
-﻿namespace Serialization
+﻿namespace Visitors
 {
     using System;
     using System.Collections.Generic;

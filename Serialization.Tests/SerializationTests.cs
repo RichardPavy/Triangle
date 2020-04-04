@@ -1,7 +1,9 @@
 namespace Serialization.Tests
 {
     using System;
+    using System.Diagnostics;
     using System.Linq;
+    using System.Threading;
     using Serialization;
     using Xunit;
 
@@ -182,6 +184,103 @@ namespace Serialization.Tests
 
             [Tag(3)]
             internal int Id { get; set; }
+        }
+
+        [Fact]
+        public void Performance()
+        {
+            PerformanceData data = null;
+            for (int i = 0; i < 10; i++)
+            {
+                data = new PerformanceData
+                {
+                    Id = 101,
+                    ExternalId = Guid.NewGuid(),
+                    Name = "top " + i,
+                    Left = data,
+                    Right = data
+                };
+            }
+
+            byte[] bytes = Serializer.Serialize(data);
+            PerformanceData data2 = Deserializer.Deserialize<PerformanceData>(bytes);
+            byte[] bytes2 = Serializer.Serialize(data2);
+
+            Assert.Equal(
+                string.Join(", ", bytes),
+                string.Join(", ", bytes2));
+
+            for (int i = 0; i < 3; i++)
+            {
+                {
+                    var speedometer = new Speedometer();
+                    while (speedometer.Continue)
+                    {
+                        var b = Serializer.Serialize(data);
+                        speedometer += b.Length;
+                    }
+                    Console.WriteLine($"Encode speed: {speedometer.Speed / 1024 / 1024}");
+                    Console.WriteLine($"Encode speed: {speedometer.Speed / 1024 / 1024} ({speedometer.Amount} runs)");
+                }
+                {
+                    var speedometer = new Speedometer();
+                    while (speedometer.Continue)
+                    {
+                        Deserializer.Deserialize<PerformanceData>(bytes);
+                        speedometer += bytes.Length;
+                    }
+                    Console.WriteLine($"Decode speed: {speedometer.Speed / 1024 / 1024} ({speedometer.Amount} runs)");
+                }
+                {
+                    var speedometer = new Speedometer();
+                    while (speedometer.Continue)
+                    {
+                        var b = Serializer.Serialize(data);
+                        Deserializer.Deserialize<PerformanceData>(b);
+                        speedometer += b.Length;
+                    }
+                    Console.WriteLine($"Encode+Decode speed: {speedometer.Speed / 1024 / 1024} ({speedometer.Amount} runs)");
+                }
+                Thread.Sleep(millisecondsTimeout: 200);
+            }
+        }
+
+        internal class PerformanceData
+        {
+            [Tag(1)]
+            internal int Id { get; set; }
+
+            [Tag(2)]
+            internal Guid ExternalId { get; set; }
+
+            [Tag(3)]
+            internal string Name { get; set; }
+
+            [Tag(4)]
+            internal PerformanceData Left { get; set; }
+
+            [Tag(5)]
+            internal PerformanceData Right { get; set; }
+        }
+
+        internal class Speedometer
+        {
+            private readonly Stopwatch stopwatch = Stopwatch.StartNew();
+
+            private int count;
+
+            public int Amount { get; set; }
+
+            public double Speed => 1000 * ((double) count) / stopwatch.ElapsedMilliseconds;
+
+            public bool Continue => stopwatch.ElapsedMilliseconds < 200;
+
+            public static Speedometer operator +(Speedometer speedometer, int add)
+            {
+                speedometer.count += add;
+                speedometer.Amount++;
+                return speedometer;
+            }
         }
     }
 }
