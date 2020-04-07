@@ -21,16 +21,21 @@ namespace Visitors.Utils
         {
             return new Optional<T>(value ?? default(T), value != null);
         }
+
+        public static Optional<T> From<T>(T value)
+        {
+            return Optional<T>.FromImpl(value);
+        }
+
+        public static Optional<T> From<T>(T value, bool present)
+        {
+            return new Optional<T>(value, present);
+        }
     }
 
     public struct Optional<T>
     {
-        public static Optional<T> From(T value)
-        {
-            return FromImpl(value);
-        }
-
-        private static readonly Func<T, Optional<T>> FromImpl =
+        internal static readonly Func<T, Optional<T>> FromImpl =
             typeof(T).IsValueType
                 ? (Func<T, Optional<T>>) new FromStruct().Call(typeof(T))
                 : (Func<T, Optional<T>>) new FromClass().Call(typeof(T));
