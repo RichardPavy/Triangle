@@ -24,5 +24,5 @@
 
     }
 
-    public delegate VisitorScope ProcessField<TData, TObj, TValue>(TData data, TObj obj, ref TValue value);
+    public delegate VisitorScope<TData> ProcessField<TData, TObj, TValue>(TData data, TObj obj, ref TValue value);
 }

@@ -32,7 +32,7 @@
         private readonly GetterImpl impl;
 
         internal StructGetter(MethodInfo method) =>
-            impl = (GetterImpl)method.CreateDelegate(typeof(GetterImpl));
+            impl = (GetterImpl) method.CreateDelegate(typeof(GetterImpl));
 
         public V Apply(in T obj)
         {
@@ -47,7 +47,7 @@
         private readonly GetterImpl impl;
 
         internal ClassGetter(MethodInfo method) =>
-            impl = (GetterImpl)method.CreateDelegate(typeof(GetterImpl));
+            impl = (GetterImpl) method.CreateDelegate(typeof(GetterImpl));
 
         public V Apply(in T obj)
         {

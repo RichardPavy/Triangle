@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using Visitors.Utils;
 
     /// <summary>
     /// Parent class for class and field visitors.
@@ -54,25 +55,39 @@
         Continue, SkipChildren, Exit
     }
 
-    public struct VisitorScope
+    public struct VisitorScope<TData>
     {
         public readonly VisitStatus Status;
         public readonly Action After;
+        public readonly Optional<TData> Data;
 
         private VisitorScope(VisitStatus status, Action after)
         {
             Status = status;
             After = after;
+            Data = Optional<TData>.Null;
         }
 
-        public static implicit operator VisitorScope(Action after) =>
-            new VisitorScope(VisitStatus.Continue, after);
-        public static implicit operator VisitorScope(VisitStatus status) =>
-            new VisitorScope(status, null);
-
-        public static VisitorScope operator +(VisitorScope scope, Action andThen)
+        private VisitorScope(VisitStatus status, Action after, Optional<TData> data)
         {
-            return new VisitorScope(scope.Status, scope.After + andThen);
+            Status = status;
+            After = after;
+            Data = data;
+        }
+
+        public static implicit operator VisitorScope<TData>(Action after) =>
+            new VisitorScope<TData>(VisitStatus.Continue, after);
+        public static implicit operator VisitorScope<TData>(VisitStatus status) =>
+            new VisitorScope<TData>(status, null);
+
+        public static VisitorScope<TData> operator +(VisitorScope<TData> scope, Action andThen)
+        {
+            return new VisitorScope<TData>(scope.Status, scope.After + andThen, scope.Data);
+        }
+
+        public static VisitorScope<TData> operator +(VisitorScope<TData> scope, Optional<TData> data)
+        {
+            return new VisitorScope<TData>(scope.Status, scope.After, data);
         }
     }
 }

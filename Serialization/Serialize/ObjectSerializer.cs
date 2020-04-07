@@ -12,7 +12,7 @@
                 (Stream stream, TObj value) =>
                 {
                     Action writeEndOfObject = () => stream.WriteByte(0);
-                    VisitorScope scope =
+                    VisitorScope<Stream> scope =
                         value != null
                             ? VisitStatus.Continue
                             : VisitStatus.SkipChildren;

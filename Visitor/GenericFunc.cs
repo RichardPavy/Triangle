@@ -12,19 +12,11 @@
 
         public TOutput Call(params Type[] types)
         {
-            try {
-            var ooo = Activator.CreateInstance(
-                GenericFuncCallerType.MakeGenericType(new Type[] { typeof(TOutput) }.Concat(types).ToArray()),
-                true);
             GenericFuncCaller genericFuncCaller =
-                (GenericFuncCaller) ooo;
+                (GenericFuncCaller) Activator.CreateInstance(
+                    GenericFuncCallerType.MakeGenericType(new Type[] { typeof(TOutput) }.Concat(types).ToArray()),
+                    true);
             return genericFuncCaller.Call(Self);
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e.ToString());
-                throw;
-            }
         }
 
         [GenericFuncCaller]
@@ -111,6 +103,17 @@
         }
     }
 
+    public abstract class GenericFunc2<TOutput, TValueInterface> : AbstractGenericFunc<GenericFunc2<TOutput, TValueInterface>, TOutput>
+    {
+        protected abstract TOutput Call<TObj, TValue>() where TValue : TValueInterface;
+
+        private sealed class GenericFuncCaller<TObj, TValue> : GenericFuncCaller
+            where TValue : TValueInterface
+        {
+            internal override TOutput Call(GenericFunc2<TOutput, TValueInterface> genericFunc) => genericFunc.Call<TObj, TValue>();
+        }
+    }
+
     public abstract class GenericFunc2Unmanaged<TOutput> : AbstractGenericFunc<GenericFunc2Unmanaged<TOutput>, TOutput>
     {
         protected abstract TOutput Call<TObj, TValue>() where TValue : unmanaged;
@@ -119,6 +122,17 @@
              where TValue : unmanaged
         {
             internal override TOutput Call(GenericFunc2Unmanaged<TOutput> genericFunc) => genericFunc.Call<TObj, TValue>();
+        }
+    }
+
+    public abstract class GenericFunc2Equatable<TOutput> : AbstractGenericFunc<GenericFunc2Equatable<TOutput>, TOutput>
+    {
+        protected abstract TOutput Call<TObj, TValue>() where TValue : IEquatable<TValue>;
+
+        private sealed class GenericFuncCaller<TObj, TValue> : GenericFuncCaller
+             where TValue : IEquatable<TValue>
+        {
+            internal override TOutput Call(GenericFunc2Equatable<TOutput> genericFunc) => genericFunc.Call<TObj, TValue>();
         }
     }
 

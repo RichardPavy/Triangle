@@ -38,7 +38,7 @@ namespace Serialization.Tests
             internal int MyIntProp { get; set; }
         }
 
-        class MyStruct
+        internal struct MyStruct
         {
             internal string MyStringProp { get; set; }
             internal int MyIntProp { get; set; }

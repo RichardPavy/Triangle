@@ -39,9 +39,9 @@
             if (MustVisit != MustVisitStatus.Yes)
                 return VisitField(data, value, VisitStatus.Continue);
 
-            VisitorScope scope = process(data, obj, ref value);
+            VisitorScope<TData> scope = process(data, obj, ref value);
             VisitStatus result = scope.Status == VisitStatus.Continue
-                ? VisitField(data, value, scope.Status)
+                ? VisitField(scope.Data | data, value, scope.Status)
                 : scope.Status;
             scope.After?.Invoke();
             return result;

@@ -24,5 +24,5 @@
 
     }
 
-    public delegate VisitorScope ProcessObject<TData, TObj>(TData data, TObj obj);
+    public delegate VisitorScope<TData> ProcessObject<TData, TObj>(TData data, TObj obj);
 }

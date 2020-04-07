@@ -10,8 +10,8 @@
         private readonly Dictionary<Type, Lazy<Visitor>> visitors =
             new Dictionary<Type, Lazy<Visitor>>();
 
-        private readonly ClassProcessorFactory classProcessorFactory;
-        private readonly FieldProcessorFactory fieldProcessorFactory;
+        private ClassProcessorFactory classProcessorFactory;
+        private FieldProcessorFactory fieldProcessorFactory;
 
         public VisitorFactory(
             ClassProcessorFactory classProcessorFactory,
@@ -30,7 +30,7 @@
 
         public ClassVisitor<TData, TObj> GetClassVisitorImpl<TObj>()
         {
-            return (ClassVisitor<TData, TObj>)CreateClassVisitor(typeof(TObj)).Value;
+            return (ClassVisitor<TData, TObj>) CreateClassVisitor(typeof(TObj)).Value;
         }
 
         private Lazy<Visitor> CreateClassVisitor(Type obj)
@@ -66,7 +66,30 @@
                 .Invoke(new object[] { this, property, processor.Process, processor.MustVisit });
         }
 
+        public VisitorFactory<TData> Class<T>(ClassProcessorFactory<T> factory)
+        {
+            var old = this.classProcessorFactory;
+            this.classProcessorFactory = type =>
+            {
+                return type.IsAssignableFrom(typeof(T)) ? factory() : old(type);
+            };
+            return this;
+        }
+
+        public VisitorFactory<TData> Field<T>(FieldProcessorFactory<T> factory)
+        {
+            var old = this.fieldProcessorFactory;
+            this.fieldProcessorFactory = property =>
+            {
+                return property.DeclaringType.IsAssignableFrom(typeof(T)) ? factory(property.Name) : old(property);
+            };
+            return this;
+        }
+
         public delegate ClassVisitorProcessor ClassProcessorFactory(Type type);
         public delegate FieldVisitorProcessor FieldProcessorFactory(PropertyInfo property);
+
+        public delegate ClassVisitorProcessor ClassProcessorFactory<T>();
+        public delegate FieldVisitorProcessor FieldProcessorFactory<T>(string property);
     }
 }

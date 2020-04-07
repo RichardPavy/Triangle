@@ -54,7 +54,7 @@
         {
             if (MustVisit != MustVisitStatus.Yes)
                 return VisitFields(data, obj, VisitStatus.Continue);
-            VisitorScope scope = process(data, obj);
+            VisitorScope<TData> scope = process(data, obj);
             VisitStatus result = scope.Status == VisitStatus.Continue
                 ? VisitFields(data, obj, scope.Status)
                 : scope.Status;
@@ -70,7 +70,6 @@
             foreach (var fieldVisitor in enabledFieldVisitorsCache)
                 if (fieldVisitor.Visit(data, obj) == VisitStatus.Exit)
                     return VisitStatus.Exit;
-
             return defaultStatus;
         }
 

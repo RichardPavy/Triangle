@@ -21,7 +21,7 @@
                     : Write;
         }
 
-        private static VisitorScope Write<TPrimitive>(Stream stream, TPrimitive value)
+        private static VisitorScope<Stream> Write<TPrimitive>(Stream stream, TPrimitive value)
             where TPrimitive : unmanaged
         {
             unsafe
@@ -34,7 +34,7 @@
         }
 
         // Copied from System.IO.System.BinaryWriter
-        private static VisitorScope Write7BitEncodedInt(Stream stream, int value)
+        private static VisitorScope<Stream> Write7BitEncodedInt(Stream stream, int value)
         {
             // Write out an int 7 bits at a time.  The high bit of the byte,
             // when on, tells reader to continue reading more bytes.
