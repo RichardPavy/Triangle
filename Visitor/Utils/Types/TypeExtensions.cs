@@ -34,7 +34,7 @@
                 yield break;
             }
 
-            unique = unique ?? new HashSet<Type>();
+            unique ??= new HashSet<Type>();
             if (!unique.Add(type))
             {
                 yield break;
