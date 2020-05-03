@@ -9,16 +9,16 @@ namespace Visitors.Comparators
     {
         public static bool Compare<T>(T a, T b)
         {
-            return CompareVisitorFactory<T>.Visitor.Visit(b, a) != VisitStatus.Exit;
+            return CompareVisitorFactory<T>.Visitor.Visit(new Data(b), a) != VisitStatus.Exit;
         }
 
         private static class CompareVisitorFactory<T>
         {
-            internal static readonly ClassVisitor<object, T> Visitor = visitorFactory.GetClassVisitor<T>();
+            internal static readonly ClassVisitor<Data, T> Visitor = visitorFactory.GetClassVisitor<T>();
         }
 
-        private static readonly VisitorFactory<object> visitorFactory =
-            new VisitorFactory<object>(
+        private static readonly VisitorFactory<Data> visitorFactory =
+            new VisitorFactory<Data>(
                 type =>
                 {
                     if (type.GetGenericParentType(typeof(IEquatable<>)) != null)
@@ -36,33 +36,18 @@ namespace Visitors.Comparators
                     return new FieldComparator().Call(property)(property);
                 });
 
-        internal class ObjectComparator : GenericFuncClass<Delegate>
+        private class ObjectComparator : GenericFuncClass<Delegate>
         {
             protected override Delegate Call<TObj>()
             {
-                return new ProcessObject<object, TObj>(
-                    (object data, TObj a) =>
+                return new ProcessObject<Data, TObj>(
+                    (Data data, TObj a) =>
                     {
-                        if (object.ReferenceEquals(a, data))
+                        if (object.ReferenceEquals(a, data.X))
                         {
                             return VisitStatus.SkipChildren;
                         }
-                        if (data is TObj)
-                        {
-                            return VisitStatus.Continue;
-                        }
-                        return VisitStatus.Exit;
-                    });
-            }
-        }
-        internal class StructComparator : GenericFuncStruct<Delegate>
-        {
-            protected override Delegate Call<TObj>()
-            {
-                return new ProcessObject<object, TObj>(
-                    (object data, TObj a) =>
-                    {
-                        if (data is TObj)
+                        if (data.X is TObj)
                         {
                             return VisitStatus.Continue;
                         }
@@ -71,7 +56,23 @@ namespace Visitors.Comparators
             }
         }
 
-        internal class EquatableComparator : GenericFunc<Delegate>
+        private class StructComparator : GenericFuncStruct<Delegate>
+        {
+            protected override Delegate Call<TObj>()
+            {
+                return new ProcessObject<Data, TObj>(
+                    (Data data, TObj a) =>
+                    {
+                        if (data.X is TObj)
+                        {
+                            return VisitStatus.Continue;
+                        }
+                        return VisitStatus.Exit;
+                    });
+            }
+        }
+
+        private class EquatableComparator : GenericFunc<Delegate>
         {
             protected override Delegate Call<TObj>()
             {
@@ -79,31 +80,41 @@ namespace Visitors.Comparators
                 {
                     throw new ArgumentException($"{typeof(TObj)} is not IEquatable<>");
                 }
-                return new ProcessObject<object, TObj>(
-                    (object data, TObj a) =>
+                return new ProcessObject<Data, TObj>(
+                    (Data data, TObj a) =>
                     {
-                        return object.Equals(a, data)
+                        return object.Equals(a, data.X)
                             ? VisitStatus.SkipChildren
                             : VisitStatus.Exit;
                     });
             }
         }
 
-        internal class FieldComparator : GenericFunc2<Func<PropertyInfo, Delegate>>
+        private class FieldComparator : GenericFunc2<Func<PropertyInfo, Delegate>>
         {
             protected override Func<PropertyInfo, Delegate> Call<TObj, TValue>()
             {
                 return property =>
                 {
                     IGetter<TObj, TValue> getter = Getter.Create<TObj, TValue>(property);
-                    return new ProcessField<object, TObj, TValue>(
-                        (object data, TObj obj, ref TValue valuea) =>
+                    return new ProcessField<Data, TObj, TValue>(
+                        (Data data, TObj obj, ref TValue valuea) =>
                         {
-                            TValue valueb = getter.Apply((TObj)data);
-                            VisitorScope<object> result = VisitStatus.Continue;
-                            return result + Optional.From<object>(valueb, true);
+                            TValue valueb = getter.Apply((TObj) data.X);
+                            VisitorScope<Data> result = VisitStatus.Continue;
+                            return result + Optional.From(new Data(valueb));
                         });
                 };
+            }
+        }
+
+        private struct Data
+        {
+            internal readonly object X;
+
+            internal Data(object x)
+            {
+                this.X = x;
             }
         }
     }
