@@ -1,7 +1,10 @@
-using System;
-
 namespace Visitors.Utils
 {
+    using System;
+
+    /// <summary>
+    ///   Similar to <see cref="Nullable{T}"/> but supports reference types as well.
+    /// </summary>
     public static class Optional
     {
         public static Optional<T> FromClass<T>(T value)
@@ -19,17 +22,12 @@ namespace Visitors.Utils
         public static Optional<T> FromNullable<T>(T? value)
             where T : struct
         {
-            return new Optional<T>(value ?? default(T), value != null);
+            return new Optional<T>(value ?? default, value != null);
         }
 
         public static Optional<T> From<T>(T value)
         {
             return Optional<T>.FromImpl(value);
-        }
-
-        public static Optional<T> From<T>(T value, bool present)
-        {
-            return new Optional<T>(value, present);
         }
     }
 
@@ -56,7 +54,7 @@ namespace Visitors.Utils
             }
         }
 
-        public static readonly Optional<T> Null = new Optional<T>(default(T), false);
+        public static readonly Optional<T> Null = new Optional<T>(default, false);
 
         private readonly T value;
 
