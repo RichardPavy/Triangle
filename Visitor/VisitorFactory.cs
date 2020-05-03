@@ -56,7 +56,7 @@
         internal FieldVisitor<TData, TObj> CreateFieldVisitor<TObj>(PropertyInfo property)
         {
             FieldVisitorProcessor processor = fieldProcessorFactory(property) ?? MustVisitStatus.No;
-            return (FieldVisitor<TData, TObj>) typeof(FieldVisitor<,,>)
+            return (FieldVisitor<TData, TObj>) (typeof(TObj).IsValueType ? typeof(StructFieldVisitor<,,>) : typeof(ClassFieldVisitor<,,>))
                 .MakeGenericType(
                     typeof(TData),
                     property.GetMethod.DeclaringType,

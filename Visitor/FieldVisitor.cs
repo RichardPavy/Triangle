@@ -13,15 +13,13 @@
         internal abstract VisitStatus Visit(TData data, TObj obj);
     }
 
-    internal sealed class FieldVisitor<TData, TObj, V> : FieldVisitor<TData, TObj>
+    internal abstract class FieldVisitor<TData, TObj, V> : FieldVisitor<TData, TObj>
     {
-        private readonly PropertyInfo property;
-        private readonly ClassVisitor<TData, V> classVisitor;
+        protected readonly PropertyInfo property;
+        protected readonly ClassVisitor<TData, V> classVisitor;
         private readonly ProcessField<TData, TObj, V> process;
 
-        private IGetter<TObj, V> getter;
-
-        internal FieldVisitor(
+        protected FieldVisitor(
             VisitorFactory<TData> visitorFactory,
             PropertyInfo property,
             ProcessField<TData, TObj, V> process,
@@ -34,7 +32,7 @@
 
         internal override VisitStatus Visit(TData data, TObj obj)
         {
-            V value = getter.Apply(obj);
+            V value = Get(obj);
 
             if (MustVisit != MustVisitStatus.Yes)
                 return VisitField(data, value, VisitStatus.Continue);
@@ -46,6 +44,8 @@
             scope.After?.Invoke();
             return result;
         }
+
+        protected abstract V Get(TObj obj);
 
         private VisitStatus VisitField(
             TData data,
@@ -59,14 +59,63 @@
 
         protected override IEnumerable<Visitor> ChildVisitors() =>
             ImmutableArray.Create(classVisitor);
+    }
+
+    internal sealed class StructFieldVisitor<TData, TObj, V> : FieldVisitor<TData, TObj, V>
+    {
+        private Getter getter;
+
+        internal StructFieldVisitor(
+            VisitorFactory<TData> visitorFactory,
+            PropertyInfo property,
+            ProcessField<TData, TObj, V> process,
+            MustVisitStatus mustVisit) : base(visitorFactory, property, process, mustVisit)
+        {
+        }
+
+        protected override V Get(TObj obj)
+        {
+            return getter(obj);
+        }
 
         internal override void Initialize()
         {
             if (this.getter == null)
             {
-                this.getter = Getter.Create<TObj, V>(this.property);
+                this.getter = (Getter) property.GetMethod.CreateDelegate(typeof(Getter));
                 this.classVisitor.Initialize();
             }
         }
+
+        private delegate V Getter(in TObj obj);
+    }
+
+    internal sealed class ClassFieldVisitor<TData, TObj, V> : FieldVisitor<TData, TObj, V>
+    {
+        private Getter getter;
+
+        internal ClassFieldVisitor(
+            VisitorFactory<TData> visitorFactory,
+            PropertyInfo property,
+            ProcessField<TData, TObj, V> process,
+            MustVisitStatus mustVisit) : base(visitorFactory, property, process, mustVisit)
+        {
+        }
+
+        protected override V Get(TObj obj)
+        {
+            return getter(obj);
+        }
+
+        internal override void Initialize()
+        {
+            if (this.getter == null)
+            {
+                this.getter = (Getter) property.GetMethod.CreateDelegate(typeof(Getter));
+                this.classVisitor.Initialize();
+            }
+        }
+
+        private delegate V Getter(TObj obj);
     }
 }
