@@ -6,6 +6,11 @@
 
     internal static class TagSerializer
     {
+        /// <summary>
+        ///   Creates a tag serializer.
+        /// </summary>
+        /// <typeparam name="TPrimitive">The type of the tag (integer)</typeparam>
+        /// <param name="primitive">The tag value</param>
         internal static Impl.TagSerializer<TPrimitive> Create<TPrimitive>(TPrimitive primitive)
             where TPrimitive : unmanaged
         {
@@ -34,10 +39,9 @@
                     array = stream.ToArray();
                 }
                 Func<TValue, bool> isDefault =
-                    (Func<TValue, bool>)
-                    (typeof(TValue).IsValueType
-                         ? new IsDefaultValue<TValue>().Call(typeof(IEquatable<TValue>), typeof(TValue))
-                         : new IsNull<TValue>().Call(typeof(TValue)));
+                    typeof(TValue).IsValueType
+                        ? new IsDefaultValue<TValue>().Call(typeof(IEquatable<TValue>), typeof(TValue))
+                        : new IsNull<TValue>().Call(typeof(TValue));
                 return new ProcessField<Stream, TObj, TValue>(
                     (Stream stream, TObj obj, ref TValue value) =>
                     {
@@ -51,6 +55,9 @@
             }
         }
 
+        /// <summary>
+        ///   For value types, fields with tags ignore the default value.
+        /// </summary>
         private class IsDefaultValue<TValue> : GenericFunc<Func<TValue, bool>, IEquatable<TValue>>
         {
             protected override Func<TValue, bool> Call<TInput>()
@@ -60,6 +67,9 @@
             }
         }
 
+        /// <summary>
+        ///   For reference types, fields with tags ignore the null value.
+        /// </summary>
         private class IsNull<TValue> : GenericFuncClass<Func<TValue, bool>>
         {
             protected override Func<TValue, bool> Call<TInput>()

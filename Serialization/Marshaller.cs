@@ -4,6 +4,14 @@ namespace Serialization
     using System.Runtime.InteropServices;
     using System.Text;
 
+    /// <summary>
+    ///   Simple implementation to convert primitives and arrays into binary representation.
+    /// </summary>
+    /// <remarks>
+    ///   Serializer/Deserializer supports more complex data structures.
+    /// </remarks>
+    /// <seealso cref="Serializer"/>
+    /// <seealso cref="Deserializer"/>
     public abstract class Marshallers<T>
     {
         public static readonly Marshaller<T> Instance = Get();

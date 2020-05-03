@@ -7,8 +7,14 @@
     using Serialization.Deserialize;
     using Visitors;
 
+    /// <summary>
+    ///   Implementation of deserialization logic.
+    /// </summary>
     public static class Deserializer
     {
+        /// <summary>
+        ///   Deserializes a byte array.
+        /// </summary>
         public static T Deserialize<T>(byte[] bytes)
             where T : new()
         {
@@ -24,6 +30,9 @@
             }
         }
 
+        /// <summary>
+        ///   Deserializes a stream.
+        /// </summary>
         public static T Deserialize<T>(Stream stream)
             where T : new()
         {
@@ -43,6 +52,17 @@
             internal static ClassVisitor<DeserializeContext, T> Visitor = visitorFactory.GetClassVisitor<T>();
         }
 
+        /// <summary>
+        ///   The visitor factory for deserializers.
+        /// </summary>
+        /// <remarks>
+        ///   Deserialization logic attempts to deserialize fields one after the other.
+        ///
+        ///   For fields that have tags, the algorithm deserializes an integer, and if tags match,
+        ///   proceeds with deserializing the value, else continues with the next field.
+        ///
+        ///   So the complexity is O(N), where N is the number of fields.
+        /// </remarks>
         private static readonly VisitorFactory<DeserializeContext> visitorFactory =
             new VisitorFactory<DeserializeContext>(
                 type =>
@@ -59,6 +79,7 @@
                 },
                 property =>
                 {
+                    // TODO: Add support for collections (List, Dictionary)
                     Delegate deserializer;
                     if (property.PropertyType.IsPrimitive)
                     {
@@ -92,6 +113,12 @@
                 });
     }
 
+    /// <summary>
+    ///   The deserialization context keeps track of the last tag that was parsed.
+    ///   When the next tag doesn't match the current field, algorithm continues with the next field,
+    ///   but should not attempt to read the next tag from the stream. It should use the last parsed tag
+    ///   until the corresponding field is found.
+    /// </summary>
     internal class DeserializeContext
     {
         internal Stream Stream { get; }

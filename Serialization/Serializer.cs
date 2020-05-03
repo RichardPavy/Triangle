@@ -7,8 +7,14 @@
     using Serialization.Serialize;
     using Visitors;
 
+    /// <summary>
+    ///   Implementation of serlialization logic.
+    /// </summary>
     public static class Serializer
     {
+        /// <summary>
+        ///   Serializes an object.
+        /// </summary>
         public static byte[] Serialize<T>(T value)
         {
             using (var stream = new MemoryStream())
@@ -18,6 +24,9 @@
             }
         }
 
+        /// <summary>
+        ///   Appends the serialized representation of an object into the given stream.
+        /// </summary>
         public static void Serialize<T>(T value, Stream stream)
         {
             SerializerVisitorFactory<T>.Visitor.Visit(stream, value);
@@ -28,6 +37,14 @@
             internal static readonly ClassVisitor<Stream, T> Visitor = visitorFactory.GetClassVisitor<T>();
         }
 
+        /// <summary>
+        ///   The visitor factory for serializers.
+        /// </summary>
+        /// <remarks>
+        ///   The visitor traverses the datastructure and appends the serialization logic into the stream.
+        ///   Fields that are annotated with tags are optional: For default values, <see cref="TagSerializer"/>
+        ///   skips the class serializer for the field so nothing is written to the stream.
+        /// </remarks>
         private static readonly VisitorFactory<Stream> visitorFactory =
             new VisitorFactory<Stream>(
                 type =>
