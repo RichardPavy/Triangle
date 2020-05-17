@@ -1,6 +1,7 @@
 namespace Serialization
 {
     using System;
+    using System.Runtime.CompilerServices;
     using System.Runtime.InteropServices;
     using System.Text;
 
@@ -72,33 +73,27 @@ namespace Serialization
 
     internal sealed class ValueTypeMarshaller<T> : Marshaller<T>
     {
-        private static readonly int Size = Marshal.SizeOf<T>();
+        private static readonly int Size = Unsafe.SizeOf<T>();
 
         public override T FromBytes(byte[] data)
         {
-            GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-            try
+            unsafe
             {
-                return Marshal.PtrToStructure<T>(handle.AddrOfPinnedObject());
-            }
-            finally
-            {
-                handle.Free();
+                void* dataPointer = Unsafe.AsPointer(ref data);
+                dataPointer = Unsafe.Add<byte>(dataPointer, 8);
+                return Unsafe.Read<T>(dataPointer);
             }
         }
 
         public override byte[] ToBytes(T value)
         {
-            byte[] data = new byte[Size];
-            GCHandle handle = GCHandle.Alloc(data, GCHandleType.Pinned);
-            try
+            unsafe
             {
-                Marshal.StructureToPtr(value, handle.AddrOfPinnedObject(), false);
+                byte[] data = new byte[Size];
+                void* dataPointer = Unsafe.AsPointer(ref data);
+                dataPointer = Unsafe.Add<byte>(dataPointer, 8);
+                Unsafe.Copy(dataPointer, ref value);
                 return data;
-            }
-            finally
-            {
-                handle.Free();
             }
         }
     }
