@@ -79,8 +79,7 @@ namespace Serialization
         {
             unsafe
             {
-                void* dataPointer = Unsafe.AsPointer(ref data);
-                dataPointer = Unsafe.Add<byte>(dataPointer, 8);
+                void* dataPointer = Unsafe.AsPointer(ref data[0]);
                 return Unsafe.Read<T>(dataPointer);
             }
         }
@@ -90,8 +89,7 @@ namespace Serialization
             unsafe
             {
                 byte[] data = new byte[Size];
-                void* dataPointer = Unsafe.AsPointer(ref data);
-                dataPointer = Unsafe.Add<byte>(dataPointer, 8);
+                void* dataPointer = Unsafe.AsPointer(ref data[0]);
                 Unsafe.Copy(dataPointer, ref value);
                 return data;
             }
