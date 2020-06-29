@@ -107,15 +107,15 @@ namespace Serialization.Tests
                 MyStruct1 = new MyStruct { i = 1, j = 2 },
                 MyStruct2 = new MyStruct { i = 3, j = 4 },
             });
-            MyStruct myStruct = Deserializer.Deserialize<MyStruct>(bytes);
-            Console.WriteLine("Serialize = " + string.Join(", ", bytes.Select(b => b.ToString())));
-            Console.WriteLine("Deserialize = " + myStruct);
+            HasStructs myStruct = Deserializer.Deserialize<HasStructs>(bytes);
         }
 
         internal class HasStructs
         {
             [Tag(1)] internal MyStruct MyStruct1 { get; set; }
             [Tag(2)] internal MyStruct MyStruct2 { get; set; }
+
+            public override string ToString() => $"{nameof(HasStructs)}(MyStruct1={MyStruct1},MyStruct2={MyStruct2})";
         }
 
         internal struct MyStruct : IEquatable<MyStruct>
@@ -139,7 +139,7 @@ namespace Serialization.Tests
                 return HashCode.Combine(i, j);
             }
 
-            public override string ToString() => $"{nameof(MyStruct)}({i},{j})";
+            public override string ToString() => $"{nameof(MyStruct)}(i={i},j={j})";
         }
 
         [Fact]
