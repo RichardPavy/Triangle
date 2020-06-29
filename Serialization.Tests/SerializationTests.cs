@@ -2,6 +2,7 @@ namespace Serialization.Tests
 {
     using System;
     using System.Diagnostics;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Threading;
     using Serialization;
@@ -96,6 +97,49 @@ namespace Serialization.Tests
 
             Assert.NotNull(deserialized.MyClass2.MyClass.MyClass2);
             Assert.Null(deserialized.MyClass2.MyClass.MyClass2.MyStringProp);
+        }
+
+        [Fact]
+        public void Struct()
+        {
+            byte[] bytes = Serializer.Serialize(new HasStructs
+            {
+                MyStruct1 = new MyStruct { i = 1, j = 2 },
+                MyStruct2 = new MyStruct { i = 3, j = 4 },
+            });
+            MyStruct myStruct = Deserializer.Deserialize<MyStruct>(bytes);
+            Console.WriteLine("Serialize = " + string.Join(", ", bytes.Select(b => b.ToString())));
+            Console.WriteLine("Deserialize = " + myStruct);
+        }
+
+        internal class HasStructs
+        {
+            [Tag(1)] internal MyStruct MyStruct1 { get; set; }
+            [Tag(2)] internal MyStruct MyStruct2 { get; set; }
+        }
+
+        internal struct MyStruct : IEquatable<MyStruct>
+        {
+            internal int i { get; set; }
+            internal int j { get; set; }
+
+            public override bool Equals(object obj)
+            {
+                return obj is MyStruct @struct && Equals(obj);
+            }
+
+            public bool Equals(MyStruct @struct)
+            {
+                return i == @struct.i &&
+                       j == @struct.j;
+            }
+
+            public override int GetHashCode()
+            {
+                return HashCode.Combine(i, j);
+            }
+
+            public override string ToString() => $"{nameof(MyStruct)}({i},{j})";
         }
 
         [Fact]
