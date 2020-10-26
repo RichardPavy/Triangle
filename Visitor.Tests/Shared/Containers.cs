@@ -1,4 +1,4 @@
-﻿namespace Visitors.Tests
+﻿namespace Triangle.Visitors.Tests.Shared
 {
     public interface IPair { }
 

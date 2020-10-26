@@ -1,9 +1,9 @@
-namespace LevelDB.Iterables
+namespace Triangle.LevelDB.Iterables
 {
     using System.Collections;
     using System.Collections.Generic;
-    using LevelDB.Iterators;
-    using Serialization;
+    using Triangle.LevelDB.Iterators;
+    using Triangle.Serialization;
 
     /// <summary>
     /// Implementation of IIterable that loops through all the keys.

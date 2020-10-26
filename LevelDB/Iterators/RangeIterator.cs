@@ -1,4 +1,4 @@
-namespace LevelDB.Iterators
+namespace Triangle.LevelDB.Iterators
 {
     using System;
 

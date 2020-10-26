@@ -1,11 +1,11 @@
-﻿namespace Serialization
+﻿namespace Triangle.Serialization
 {
     using System;
     using System.IO;
     using System.Linq;
     using System.Reflection;
-    using Serialization.Deserialize;
-    using Visitors;
+    using Triangle.Serialization.Deserialize;
+    using Triangle.Visitors;
 
     /// <summary>
     ///   Implementation of deserialization logic.

@@ -1,10 +1,10 @@
-namespace LevelDB.Iterators
+namespace Triangle.LevelDB.Iterators
 {
     using System;
     using System.Collections;
     using System.Collections.Generic;
     using System.Runtime.InteropServices;
-    using Serialization;
+    using Triangle.Serialization;
 
     /// <summary>
     /// DB Iterator
@@ -67,7 +67,7 @@ namespace LevelDB.Iterators
         [DllImport("leveldb", CallingConvention = CallingConvention.Cdecl)]
         private static extern IntPtr leveldb_create_iterator(IntPtr db, IntPtr readOptions);
 
-        ~Iterator()
+        protected override void DisposeUnmanagedDependencies()
         {
             if (DB.Handle != IntPtr.Zero)
             {

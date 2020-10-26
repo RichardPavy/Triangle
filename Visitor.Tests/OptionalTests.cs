@@ -1,7 +1,7 @@
-namespace Serialization.Tests
+namespace Triangle.Visitors.Tests
 {
     using System;
-    using Visitors.Utils;
+    using Triangle.Visitors.Utils;
     using Xunit;
 
     public class OptionalTests

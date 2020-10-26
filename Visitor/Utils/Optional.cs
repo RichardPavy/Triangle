@@ -1,4 +1,4 @@
-namespace Visitors.Utils
+namespace Triangle.Visitors.Utils
 {
     using System;
 

@@ -1,11 +1,11 @@
-﻿namespace Serialization
+﻿namespace Triangle.Serialization
 {
     using System;
     using System.IO;
     using System.Linq;
     using System.Reflection;
-    using Serialization.Serialize;
-    using Visitors;
+    using Triangle.Serialization.Serialize;
+    using Triangle.Visitors;
 
     /// <summary>
     ///   Implementation of serlialization logic.

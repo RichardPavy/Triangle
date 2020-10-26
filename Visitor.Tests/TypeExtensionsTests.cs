@@ -1,11 +1,11 @@
-namespace Serialization.Tests
+namespace Triangle.Visitors.Tests
 {
     using System;
     using System.Collections;
     using System.Collections.Concurrent;
     using System.Collections.Generic;
     using System.Runtime.Serialization;
-    using Visitors.Utils.Types;
+    using Triangle.Visitors.Utils.Types;
     using Xunit;
 
     public class TypeExtensionsTests

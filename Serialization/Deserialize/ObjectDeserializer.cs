@@ -1,8 +1,8 @@
-﻿namespace Serialization.Deserialize
+﻿namespace Triangle.Serialization.Deserialize
 {
     using System;
     using System.Reflection;
-    using Visitors;
+    using Triangle.Visitors;
 
     internal class ObjectDeserializer : GenericFunc2New<Func<PropertyInfo, Delegate>>
     {

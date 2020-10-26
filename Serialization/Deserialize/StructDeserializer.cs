@@ -1,9 +1,9 @@
-﻿namespace Serialization.Deserialize
+﻿namespace Triangle.Serialization.Deserialize
 {
     using System;
     using System.Reflection;
     using System.Runtime.CompilerServices;
-    using Visitors;
+    using Triangle.Visitors;
 
     internal class StructDeserializer : GenericFunc2Struct<Func<PropertyInfo, Delegate>>
     {

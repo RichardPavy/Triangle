@@ -1,6 +1,6 @@
-namespace Serialization.Tests
+namespace Triangle.Visitors.Tests
 {
-    using Visitors.Comparators;
+    using Triangle.Visitors.Comparators;
     using Xunit;
 
     public class ComparatorTests

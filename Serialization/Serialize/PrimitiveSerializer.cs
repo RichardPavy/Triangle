@@ -1,8 +1,8 @@
-﻿namespace Serialization.Serialize
+﻿namespace Triangle.Serialization.Serialize
 {
     using System;
     using System.IO;
-    using Visitors;
+    using Triangle.Visitors;
 
     internal class PrimitiveSerializer : GenericFuncUnmanaged<Delegate>
     {

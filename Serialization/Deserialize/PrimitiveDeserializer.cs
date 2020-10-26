@@ -1,9 +1,9 @@
-﻿namespace Serialization.Deserialize
+﻿namespace Triangle.Serialization.Deserialize
 {
     using System;
     using System.IO;
     using System.Reflection;
-    using Visitors;
+    using Triangle.Visitors;
 
     internal class PrimitiveDeserializer : GenericFunc2Unmanaged<Func<PropertyInfo, Delegate>>
     {

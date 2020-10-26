@@ -1,10 +1,10 @@
-namespace Serialization.Tests
+namespace Triangle.Serialization.Tests
 {
     using System;
     using System.Diagnostics;
     using System.Linq;
     using System.Threading;
-    using Serialization;
+    using Triangle.Serialization;
     using Xunit;
 
     public class SerializationTests

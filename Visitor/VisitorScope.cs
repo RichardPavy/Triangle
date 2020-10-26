@@ -1,7 +1,7 @@
-﻿namespace Visitors
+﻿namespace Triangle.Visitors
 {
     using System;
-    using Visitors.Utils;
+    using Triangle.Visitors.Utils;
 
     public struct VisitorScope<TData>
     {

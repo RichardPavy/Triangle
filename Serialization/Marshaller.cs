@@ -1,8 +1,7 @@
-namespace Serialization
+namespace Triangle.Serialization
 {
     using System;
     using System.Runtime.CompilerServices;
-    using System.Runtime.InteropServices;
     using System.Text;
 
     /// <summary>

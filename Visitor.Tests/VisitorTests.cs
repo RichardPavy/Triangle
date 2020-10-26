@@ -1,10 +1,10 @@
-namespace Visitors.Tests
+namespace Triangle.Visitors.Tests
 {
-    using Serialization;
     using System;
     using System.Reflection;
     using System.Text;
-    using Visitors;
+    using Triangle.Visitors;
+    using Triangle.Visitors.Tests.Shared;
     using Xunit;
 
     public class VisitorTests

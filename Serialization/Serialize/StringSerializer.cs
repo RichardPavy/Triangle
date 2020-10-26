@@ -1,7 +1,7 @@
-﻿namespace Serialization.Serialize
+﻿namespace Triangle.Serialization.Serialize
 {
     using System.IO;
-    using Visitors;
+    using Triangle.Visitors;
 
     internal static class StringSerializer
     {

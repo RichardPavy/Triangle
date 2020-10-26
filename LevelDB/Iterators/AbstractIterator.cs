@@ -1,13 +1,14 @@
-namespace LevelDB.Iterators
+namespace Triangle.LevelDB.Iterators
 {
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using Triangle.Utils;
 
     /// <summary>
     /// Abstract implementation of iterators.
     /// </summary>
-    internal abstract class AbstractIterator : IIterator
+    internal abstract class AbstractIterator : AbstractDisposable, IIterator
     {
         protected bool IsFirstMove { get; set; } = true;
 
@@ -22,8 +23,6 @@ namespace LevelDB.Iterators
         {
             IsFirstMove = true;
         }
-
-        public virtual void Dispose() { }
 
         internal abstract void Previous();
         internal abstract void Next();

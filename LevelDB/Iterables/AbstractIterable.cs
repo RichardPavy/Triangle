@@ -1,9 +1,9 @@
-namespace LevelDB.Iterables
+namespace Triangle.LevelDB.Iterables
 {
     using System;
     using System.Collections;
     using System.Collections.Generic;
-    using LevelDB.Iterators;
+    using Triangle.LevelDB.Iterators;
 
     /// <summary>
     /// Abstract implementation of IIterable.

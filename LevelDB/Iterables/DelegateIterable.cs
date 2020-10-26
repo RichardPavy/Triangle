@@ -1,4 +1,4 @@
-namespace LevelDB.Iterables
+namespace Triangle.LevelDB.Iterables
 {
     internal abstract class DelegateIterable : AbstractIterable
     {

@@ -1,4 +1,4 @@
-﻿namespace Serialization
+﻿namespace Triangle.Serialization
 {
     using System;
     using System.Collections.Generic;

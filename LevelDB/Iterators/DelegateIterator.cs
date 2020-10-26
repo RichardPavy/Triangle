@@ -1,4 +1,4 @@
-namespace LevelDB.Iterators
+namespace Triangle.LevelDB.Iterators
 {
     internal abstract class DelegateIterator : AbstractIterator
     {
@@ -14,7 +14,6 @@ namespace LevelDB.Iterators
 
         public override IIterator Reverse() => delegateIterator.Reverse();
         public override IIterator Range(byte[] from, byte[] to) => delegateIterator.Range(from, to);
-        public override void Dispose() => delegateIterator.Dispose();
 
         internal override bool IsValid => delegateIterator.IsValid;
 
@@ -25,5 +24,7 @@ namespace LevelDB.Iterators
         internal override IIterator SeekToFirst() => delegateIterator.SeekToFirst();
         internal override IIterator SeekToLast() => delegateIterator.SeekToLast();
         internal override int CompareKeys(byte[] a, byte[] b) => delegateIterator.CompareKeys(a, b);
+
+        protected override void DisposeManagedDependencies() => delegateIterator.Dispose();
     }
 }

@@ -1,4 +1,4 @@
-namespace LevelDB
+namespace Triangle.LevelDB
 {
     using System;
     using System.Runtime.InteropServices;

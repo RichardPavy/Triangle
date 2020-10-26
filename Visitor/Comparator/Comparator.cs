@@ -1,9 +1,9 @@
-namespace Visitors.Comparators
+namespace Triangle.Visitors.Comparators
 {
     using System;
     using System.Reflection;
-    using Visitors.Utils;
-    using Visitors.Utils.Types;
+    using Triangle.Visitors.Utils;
+    using Triangle.Visitors.Utils.Types;
 
     public sealed class Comparator
     {

@@ -1,7 +1,6 @@
-namespace Serialization.Tests
+namespace Triangle.Visitors.Tests
 {
-    using System;
-    using Visitors;
+    using Triangle.Visitors;
     using Xunit;
 
     public class GetterSetterTests

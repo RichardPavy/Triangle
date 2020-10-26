@@ -1,11 +1,11 @@
-namespace LevelDB.Tests
+namespace Triangle.LevelDB.Tests
 {
     using System;
     using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Runtime.CompilerServices;
-    using LevelDB.Iterables;
+    using Triangle.LevelDB.Iterables;
     using Xunit;
 
     // DYLD_INSERT_LIBRARIES=/usr/local/lib/libtcmalloc.dylib dotnet test LevelDB.Tests

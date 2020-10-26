@@ -1,4 +1,4 @@
-﻿namespace Visitors
+﻿namespace Triangle.Visitors
 {
     using System.Collections.Generic;
     using System.Collections.Immutable;

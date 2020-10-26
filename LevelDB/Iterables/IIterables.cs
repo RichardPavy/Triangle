@@ -1,4 +1,4 @@
-namespace LevelDB.Iterables
+namespace Triangle.LevelDB.Iterables
 {
     using System;
     using System.Collections.Generic;

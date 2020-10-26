@@ -1,7 +1,7 @@
-namespace LevelDB.Iterables
+namespace Triangle.LevelDB.Iterables
 {
     using System.Collections.Generic;
-    using LevelDB.Iterators;
+    using Triangle.LevelDB.Iterators;
 
     /// <summary>
     /// Represents data in a DB.

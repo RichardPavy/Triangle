@@ -1,4 +1,4 @@
-﻿namespace Visitors.Utils.Types
+﻿namespace Triangle.Visitors.Utils.Types
 {
     using System;
     using System.Collections.Generic;

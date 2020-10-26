@@ -1,6 +1,6 @@
-namespace LevelDB.Iterables
+namespace Triangle.LevelDB.Iterables
 {
-    using LevelDB.Iterators;
+    using Triangle.LevelDB.Iterators;
 
     /// <summary>
     /// Implementation of IIterable that loops through a range of keys.

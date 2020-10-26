@@ -1,9 +1,9 @@
-namespace LevelDB
+namespace Triangle.LevelDB
 {
     using System;
     using System.Runtime.InteropServices;
-    using LevelDB.Iterables;
-    using Serialization;
+    using Triangle.LevelDB.Iterables;
+    using Triangle.Serialization;
 
     public class DB : IDisposable
     {

@@ -1,4 +1,4 @@
-namespace LevelDB.Iterators
+namespace Triangle.LevelDB.Iterators
 {
     /// <summary>
     /// A DB iterator that loops in reverse order.
