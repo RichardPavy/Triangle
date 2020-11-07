@@ -102,12 +102,17 @@ namespace Triangle.Serialization.Tests
         [Fact]
         public void Struct()
         {
-            byte[] bytes = Serializer.Serialize(new HasStructs
+            HasStructs original = new HasStructs
             {
                 MyStruct1 = new MyStruct { i = 1, j = 2 },
                 MyStruct2 = new MyStruct { i = 3, j = 4 },
-            });
-            HasStructs myStruct = Deserializer.Deserialize<HasStructs>(bytes);
+            };
+            byte[] bytes = Serializer.Serialize(original);
+            HasStructs deserialized = Deserializer.Deserialize<HasStructs>(bytes);
+            Assert.Equal(original.MyStruct1, deserialized.MyStruct1);
+            Assert.Equal(original.MyStruct1.GetHashCode(), deserialized.MyStruct1.GetHashCode());
+            Assert.Equal(original.MyStruct2, deserialized.MyStruct2);
+            Assert.Equal(original.MyStruct2.GetHashCode(), deserialized.MyStruct2.GetHashCode());
         }
 
         internal class HasStructs
@@ -125,7 +130,7 @@ namespace Triangle.Serialization.Tests
 
             public override bool Equals(object obj)
             {
-                return obj is MyStruct @struct && Equals(obj);
+                return obj is MyStruct @struct && Equals(@struct);
             }
 
             public bool Equals(MyStruct @struct)
