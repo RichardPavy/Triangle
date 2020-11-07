@@ -199,26 +199,50 @@ namespace Triangle.Serialization.Tests
         [Fact]
         public void SerializeList()
         {
-            var obj = new WithList
-            {
-                List = new List<MyClass> {
-                    new MyClass { MyIntProp = 513 },
-                    new MyClass { MyIntProp = 514 },
-                }
-            };
-            byte[] bytes = Serializer.Serialize(obj);
-            WithList deserialized = Deserializer.Deserialize<WithList>(bytes);
-            Assert.Equal(2, deserialized.List.Count);
-            Assert.Equal(513, deserialized.List[0].MyIntProp);
-            Assert.Equal(514, deserialized.List[1].MyIntProp);
+            var list = new List<MyClass>
+                {
+                    new MyClass { MyIntProp = 83 },
+                    new MyClass { MyIntProp = 84 },
+                    new MyClass { MyIntProp = 85 },
+                };
+            RunSerializeListTest(new WithList { List = list });
+            RunSerializeListTest(new WithTaggedList { List = list });
+            RunSerializeListTest(new WithListWithTaggedField { List = list });
         }
 
-        internal class WithList
+        private void RunSerializeListTest<T>(T obj) where T : IWithList, new()
         {
-            internal IList<MyClass> List { get; set; }
+            byte[] bytes = Serializer.Serialize(obj);
+            Console.WriteLine($"SerializeList<{typeof(T).Name}>:\n\t" + string.Join(", ", bytes));
+            IWithList deserialized = Deserializer.Deserialize<T>(bytes);
+            Assert.Equal(3, deserialized.List.Count);
+            Assert.Equal(83, deserialized.List[0].MyIntProp);
+            Assert.Equal(84, deserialized.List[1].MyIntProp);
+            Assert.Equal(85, deserialized.List[2].MyIntProp);
+        }
 
-            [Tag(1)]
-            internal string MyStringProp { get; set; }
+        internal interface IWithList
+        {
+            IList<MyClass> List { get; set; }
+        }
+
+        [Serializable]
+        internal class WithList : IWithList
+        {
+            public IList<MyClass> List { get; set; }
+        }
+
+        [Serializable]
+        internal class WithTaggedList : IWithList
+        {
+            [Tag(5)] public IList<MyClass> List { get; set; }
+        }
+
+        [Serializable]
+        internal class WithListWithTaggedField : IWithList
+        {
+            public IList<MyClass> List { get; set; }
+            [Tag(2)] internal int MyIntProp { get; set; } = 3;
         }
 
         [Fact]
