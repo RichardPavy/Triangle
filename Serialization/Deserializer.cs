@@ -69,13 +69,12 @@
             new VisitorFactory<DeserializeContext>(
                 type =>
                 {
-                    if (type.IsPrimitive || type == typeof(string) || type.IsValueType)
+                    if (type.IsPrimitive
+                        || type == typeof(string)
+                        || type.IsValueType
+                        || type.GetGenericParentType(typeof(IList<>)) != null)
                     {
                         return MustVisitStatus.Never;
-                    }
-                    else if (type.GetGenericParentType(typeof(IList<>)) == typeof(IList<>))
-                    {
-                        return new ListDeserializer(visitorFactory).Call(type);
                     }
                     else if (type.SerializableFields().Any())
                     {
@@ -85,6 +84,10 @@
                 },
                 property =>
                 {
+                    if (property.DeclaringType.GetGenericParentType(typeof(IList<>)) != null)
+                    {
+                        return MustVisitStatus.Never;
+                    }
                     // TODO: Add support for collections (List, Dictionary)
                     Delegate deserializer;
                     if (property.PropertyType.IsPrimitive)
@@ -102,6 +105,12 @@
                     else if (property.PropertyType.SerializableFields().Any())
                     {
                         deserializer = new ObjectDeserializer().Call(property)(property);
+                    }
+                    else if (property.PropertyType.GetGenericParentType(typeof(IList<>)) != null)
+                    {
+                        return new ListDeserializer(visitorFactory).Call(
+                            property.DeclaringType,
+                            property.PropertyType.GetGenericParentType(typeof(IList<>)).GetGenericArguments().Single())(property);
                     }
                     else
                     {

@@ -1,5 +1,6 @@
 ﻿namespace Triangle.Visitors
 {
+    using System;
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Reflection;
@@ -111,7 +112,17 @@
         {
             if (this.getter == null)
             {
-                this.getter = (Getter) property.GetMethod.CreateDelegate(typeof(Getter));
+                Console.WriteLine(property);
+                try
+                {
+                    this.getter = (Getter)property.GetMethod.CreateDelegate(typeof(Getter));
+                }
+                catch (Exception exception)
+                {
+                    throw new InvalidOperationException(
+                        $"Property {property.Name}\n\treturning {property.PropertyType}\n\tin type {property.DeclaringType}\n\tdoes not match {typeof(Getter)}",
+                        exception);
+                }
                 this.classVisitor.Initialize();
             }
         }

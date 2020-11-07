@@ -215,8 +215,10 @@ namespace Triangle.Serialization.Tests
 
         internal class WithList
         {
-            [Tag(1)]
             internal IList<MyClass> List { get; set; }
+
+            [Tag(1)]
+            internal string MyStringProp { get; set; }
         }
 
         [Fact]

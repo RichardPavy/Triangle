@@ -76,6 +76,10 @@
                 },
                 property =>
                 {
+                    if (property.DeclaringType.GetGenericParentType(typeof(IList<>)) != null)
+                    {
+                        return MustVisitStatus.Never;
+                    }
                     var tag = property.GetCustomAttributes<TagAttribute>().SingleOrDefault()?.Tag;
                     if (tag != null)
                     {

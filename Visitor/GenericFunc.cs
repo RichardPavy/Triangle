@@ -12,11 +12,22 @@
 
         public TOutput Call(params Type[] types)
         {
-            GenericFuncCaller genericFuncCaller =
-                (GenericFuncCaller) Activator.CreateInstance(
-                    GenericFuncCallerType.MakeGenericType(new Type[] { typeof(TOutput) }.Concat(types).ToArray()),
-                    true);
-            return genericFuncCaller.Call(Self);
+            Type[] typeParameters = new Type[] { typeof(TOutput) }.Concat(types).ToArray();
+            try
+            {
+                GenericFuncCaller genericFuncCaller =
+                    (GenericFuncCaller)Activator.CreateInstance(
+                        GenericFuncCallerType.MakeGenericType(typeParameters),
+                        true);
+                return genericFuncCaller.Call(Self);
+            }
+            catch (Exception exception)
+            {
+                throw new InvalidOperationException(
+                    $"Unable to create generic type {GenericFuncCallerType}" +
+                    $" with arguments [\n\t{string.Join(",\n\t", typeParameters.Select(x => x.ToString()))}\n]",
+                    exception);
+            }
         }
 
         [GenericFuncCaller]
