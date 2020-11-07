@@ -1,11 +1,13 @@
 ﻿namespace Triangle.Serialization
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Reflection;
     using Triangle.Serialization.Deserialize;
     using Triangle.Visitors;
+    using Triangle.Visitors.Utils.Types;
 
     /// <summary>
     ///   Implementation of deserialization logic.
@@ -70,6 +72,10 @@
                     if (type.IsPrimitive || type == typeof(string) || type.IsValueType)
                     {
                         return MustVisitStatus.Never;
+                    }
+                    else if (type.GetGenericParentType(typeof(IList<>)) == typeof(IList<>))
+                    {
+                        return new ListDeserializer(visitorFactory).Call(type);
                     }
                     else if (type.SerializableFields().Any())
                     {

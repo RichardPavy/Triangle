@@ -1,6 +1,7 @@
 namespace Triangle.Serialization.Tests
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics;
     using System.Linq;
     using System.Threading;
@@ -193,6 +194,29 @@ namespace Triangle.Serialization.Tests
 
             [Tag(4)]
             internal MyClass MyClass { get; set; }
+        }
+
+        [Fact]
+        public void SerializeList()
+        {
+            var obj = new WithList
+            {
+                List = new List<MyClass> {
+                    new MyClass { MyIntProp = 513 },
+                    new MyClass { MyIntProp = 514 },
+                }
+            };
+            byte[] bytes = Serializer.Serialize(obj);
+            WithList deserialized = Deserializer.Deserialize<WithList>(bytes);
+            Assert.Equal(2, deserialized.List.Count);
+            Assert.Equal(513, deserialized.List[0].MyIntProp);
+            Assert.Equal(514, deserialized.List[1].MyIntProp);
+        }
+
+        internal class WithList
+        {
+            [Tag(1)]
+            internal IList<MyClass> List { get; set; }
         }
 
         [Fact]

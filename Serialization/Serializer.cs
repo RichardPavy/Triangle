@@ -1,11 +1,13 @@
 ﻿namespace Triangle.Serialization
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Linq;
     using System.Reflection;
     using Triangle.Serialization.Serialize;
     using Triangle.Visitors;
+    using Triangle.Visitors.Utils.Types;
 
     /// <summary>
     ///   Implementation of serlialization logic.
@@ -60,6 +62,11 @@
                     if (type.IsValueType)
                     {
                         return new StructSerializer().Call(type);
+                    }
+                    else if (type.GetGenericParentType(typeof(IList<>)) != null)
+                    {
+                        Type elementType = type.GetGenericParentType(typeof(IList<>)).GetGenericArguments().Single();
+                        return new ListSerializer(visitorFactory).Call(elementType);
                     }
                     if (type.SerializableFields().Any())
                     {
