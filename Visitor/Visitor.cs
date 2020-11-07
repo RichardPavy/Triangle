@@ -2,6 +2,7 @@
 {
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text;
 
     /// <summary>
     /// Parent class for class and field visitors.
@@ -41,6 +42,15 @@
         }
 
         internal abstract void Initialize();
+
+        public override string ToString()
+        {
+            StringBuilder builder = new StringBuilder();
+            AppendToString(builder, "", 10);
+            return builder.ToString();
+        }
+
+        protected internal abstract void AppendToString(StringBuilder builder, string indent, int depth);
     }
 
     public enum MustVisitStatus

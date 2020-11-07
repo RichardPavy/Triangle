@@ -5,6 +5,7 @@
     using System.Collections.Generic;
     using System.Reflection;
     using System.Collections.Immutable;
+    using System.Text;
 
     public sealed class ClassVisitor<TData, TObj> : Visitor
     {
@@ -75,5 +76,16 @@
 
         protected override IEnumerable<Visitor> ChildVisitors() =>
             allFieldVisitors.Value;
+
+        protected internal override void AppendToString(StringBuilder builder, string indent, int depth)
+        {
+            if (--depth == 0) return;
+            builder.Append(indent).Append($"ClassVisitor<{typeof(TData)}, {typeof(TObj)}>").Append("\n");
+            string indent2 = indent + "  ";
+            foreach (var fieldVisitor in enabledFieldVisitorsCache)
+            {
+                fieldVisitor.AppendToString(builder, indent2, depth);
+            }
+        }
     }
 }

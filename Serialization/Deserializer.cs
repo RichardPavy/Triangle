@@ -76,7 +76,7 @@
                     {
                         return MustVisitStatus.Never;
                     }
-                    else if (type.SerializableFields().Any())
+                    else if (type.IsSerializable())
                     {
                         return new EndOfObjectDeserializer().Call(type);
                     }
@@ -102,13 +102,13 @@
                     {
                         deserializer = new StructDeserializer().Call(property)(property);
                     }
-                    else if (property.PropertyType.SerializableFields().Any())
+                    else if (property.PropertyType.IsSerializable())
                     {
                         deserializer = new ObjectDeserializer().Call(property)(property);
                     }
                     else if (property.PropertyType.GetGenericParentType(typeof(IList<>)) != null)
                     {
-                        return new ListDeserializer(visitorFactory).Call(
+                        deserializer = new ListDeserializer(visitorFactory).Call(
                             property.DeclaringType,
                             property.PropertyType.GetGenericParentType(typeof(IList<>)).GetGenericArguments().Single())(property);
                     }

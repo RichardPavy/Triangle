@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.Immutable;
     using System.Reflection;
+    using System.Text;
 
     internal abstract class FieldVisitor<TData, TObj> : Visitor
     {
@@ -60,6 +61,14 @@
 
         protected override IEnumerable<Visitor> ChildVisitors() =>
             ImmutableArray.Create(classVisitor);
+
+        protected internal override void AppendToString(StringBuilder builder, string indent, int depth)
+        {
+            if (--depth == 0) return;
+            builder.Append(indent).Append($"{GetType().Name}<{typeof(TData)}, {typeof(TObj)}, {typeof(V)}> ").Append("\n");
+            string indent2 = indent + "  ";
+            classVisitor.AppendToString(builder, indent2, depth);
+        }
     }
 
     internal sealed class StructFieldVisitor<TData, TObj, V> : FieldVisitor<TData, TObj, V>
@@ -112,7 +121,6 @@
         {
             if (this.getter == null)
             {
-                Console.WriteLine(property);
                 try
                 {
                     this.getter = (Getter)property.GetMethod.CreateDelegate(typeof(Getter));

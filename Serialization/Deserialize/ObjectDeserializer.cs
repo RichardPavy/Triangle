@@ -37,7 +37,7 @@
                         if (tag != EndTag)
                         {
                             throw new InvalidOperationException(
-                                $"Expected end tag {EndTag}, got {tag}");
+                                $"Expected end tag {EndTag}, got {tag}, in {typeof(TObj)}");
                         }
                         context.ClearLastTag();
                     });

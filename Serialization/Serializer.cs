@@ -68,7 +68,7 @@
                         Type elementType = type.GetGenericParentType(typeof(IList<>)).GetGenericArguments().Single();
                         return new ListSerializer(visitorFactory).Call(elementType);
                     }
-                    if (type.SerializableFields().Any())
+                    if (type.IsSerializable())
                     {
                         return new ObjectSerializer().Call(type);
                     }
@@ -76,14 +76,14 @@
                 },
                 property =>
                 {
-                    if (property.DeclaringType.GetGenericParentType(typeof(IList<>)) != null)
-                    {
-                        return MustVisitStatus.Never;
-                    }
                     var tag = property.GetCustomAttributes<TagAttribute>().SingleOrDefault()?.Tag;
                     if (tag != null)
                     {
                         return TagSerializer.Create(tag.Value).Call(property);
+                    }
+                    if (property.DeclaringType.GetGenericParentType(typeof(IList<>)) != null)
+                    {
+                        return MustVisitStatus.Never;
                     }
                     return MustVisitStatus.No;
                 });

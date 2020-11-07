@@ -21,6 +21,10 @@
 
     internal static class TagExtensions
     {
+        internal static bool IsSerializable(this Type type) =>
+            type.GetCustomAttribute<SerializableAttribute>() != null
+            || type.SerializableFields().Any();
+
         internal static IEnumerable<PropertyInfo> SerializableFields(this Type type) =>
             (from property in
                  type.GetProperties(
