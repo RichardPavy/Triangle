@@ -10,7 +10,7 @@ namespace Triangle.LevelDB.Iterators
     /// </summary>
     internal abstract class AbstractIterator : AbstractDisposable, IIterator
     {
-        protected bool IsFirstMove { get; set; } = true;
+        private bool isFirstMove = true;
 
         public abstract byte[] Key { get; }
         public abstract byte[] Value { get; }
@@ -21,7 +21,7 @@ namespace Triangle.LevelDB.Iterators
 
         public void Reset()
         {
-            IsFirstMove = true;
+            this.isFirstMove = true;
         }
 
         internal abstract void Previous();
@@ -45,10 +45,10 @@ namespace Triangle.LevelDB.Iterators
 
         public bool MoveNext()
         {
-            if (IsFirstMove)
+            if (this.isFirstMove)
             {
                 SeekToFirst();
-                IsFirstMove = false;
+                this.isFirstMove = false;
                 return IsValid;
             }
             Next();

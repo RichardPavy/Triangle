@@ -134,33 +134,34 @@ namespace Triangle.LevelDB.Iterators
 
     internal sealed class Iterator<TKey, TValue> : IIterator<TKey, TValue>
     {
+        private static readonly Marshaller<TKey> keyMarshaller = Marshallers<TKey>.Instance;
+        private static readonly Marshaller<TValue> valueMarshaller = Marshallers<TValue>.Instance;
+
         private readonly IIterator delegateIterator;
-        private readonly Marshaller<TKey> keyMarshaller = Marshallers<TKey>.Instance;
-        private readonly Marshaller<TValue> valueMarshaller = Marshallers<TValue>.Instance;
 
         internal Iterator(IIterator delegateIterator)
         {
             this.delegateIterator = delegateIterator;
         }
 
-        public TKey Key => keyMarshaller.FromBytes(delegateIterator.Key);
-        public TValue Value => valueMarshaller.FromBytes(delegateIterator.Value);
+        public TKey Key => keyMarshaller.FromBytes(this.delegateIterator.Key);
+        public TValue Value => valueMarshaller.FromBytes(this.delegateIterator.Value);
         public KeyValuePair<TKey, TValue> Current => new KeyValuePair<TKey, TValue>(Key, Value);
         object IEnumerator.Current => Current;
-        public void Dispose() => delegateIterator.Dispose();
-        public bool MoveNext() => delegateIterator.MoveNext();
-        public void Reset() => delegateIterator.Reset();
+        public void Dispose() => this.delegateIterator.Dispose();
+        public bool MoveNext() => this.delegateIterator.MoveNext();
+        public void Reset() => this.delegateIterator.Reset();
 
         public IIterator<TKey, TValue> Range(TKey from, TKey to) =>
             new Iterator<TKey, TValue>(
-                delegateIterator.Range(
+                this.delegateIterator.Range(
                     keyMarshaller.ToBytes(from),
                     keyMarshaller.ToBytes(to)));
 
         public IIterator<TKey, TValue> Reverse() =>
-            new Iterator<TKey, TValue>(delegateIterator.Reverse());
+            new Iterator<TKey, TValue>(this.delegateIterator.Reverse());
 
         public IIterator<TKey2, TValue2> Cast<TKey2, TValue2>() =>
-            new Iterator<TKey2, TValue2>(delegateIterator);
+            new Iterator<TKey2, TValue2>(this.delegateIterator);
     }
 }

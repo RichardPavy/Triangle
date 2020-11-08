@@ -169,6 +169,16 @@
         }
     }
 
+    public abstract class GenericFunc4<TOutput> : AbstractGenericFunc<GenericFunc4<TOutput>, TOutput>
+    {
+        protected abstract TOutput Call<TA, TB, TC, TD>();
+
+        private sealed class GenericFuncCaller<TA, TB, TC, TD> : GenericFuncCaller
+        {
+            internal override TOutput Call(GenericFunc4<TOutput> genericFunc) => genericFunc.Call<TA, TB, TC, TD>();
+        }
+    }
+
     public static class GenericFuncExtensions
     {
         public static TOutput Call<TSelf, TOutput>(

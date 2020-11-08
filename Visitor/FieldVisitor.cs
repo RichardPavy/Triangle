@@ -65,7 +65,7 @@
         protected internal override void AppendToString(StringBuilder builder, string indent, int depth)
         {
             if (--depth == 0) return;
-            builder.Append(indent).Append($"{GetType().Name}<{typeof(TData)}, {typeof(TObj)}, {typeof(V)}> ").Append("\n");
+            builder.Append(indent).Append($"{GetType().Name}<{typeof(TData)}, {typeof(TObj)}, {typeof(V)}>").Append("\n");
             string indent2 = indent + "  ";
             classVisitor.AppendToString(builder, indent2, depth);
         }
