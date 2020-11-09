@@ -1,14 +1,11 @@
 ﻿namespace Triangle.LevelDB.Iterators
 {
     using System;
-    using System.Collections;
-    using System.Collections.Generic;
     using Triangle.Serialization;
-    using Triangle.Utils;
     using Triangle.Visitors;
     using Triangle.Visitors.Utils.Types;
 
-    internal class MergeJoinIterator : AbstractDisposable, IMergeJoinIterator<byte[], byte[], byte[], byte[]>
+    internal class MergeJoinIterator : AbstractMergeJoinIterator<byte[], byte[], byte[], byte[]>
     {
         private readonly IIterator left;
         private readonly IIterator right;
@@ -20,24 +17,15 @@
             this.right = right;
         }
 
-        public JoinEntry<byte[], byte[]> Key => JoinEntry.Of(this.left.Key, this.right.Key);
-        public JoinEntry<byte[], byte[]> Value => JoinEntry.Of(this.left.Value, this.right.Value);
-        public KeyValuePair<JoinEntry<byte[], byte[]>, JoinEntry<byte[], byte[]>> Current =>
-            new KeyValuePair<JoinEntry<byte[], byte[]>, JoinEntry<byte[], byte[]>>(Key, Value);
+        public override JoinEntry<byte[], byte[]> Key => JoinEntry.Of(this.left.Key, this.right.Key);
+        public override JoinEntry<byte[], byte[]> Value => JoinEntry.Of(this.left.Value, this.right.Value);
 
-        object IEnumerator.Current => Current;
+        public override IMergeJoinIterator<TK1, TK2, TV1, TV2> Cast<TK1, TK2, TV1, TV2>()
+            => new MergeJoinIterator<TK1, TK2, TV1, TV2>(this);
+        public override IIterator<TKey2, TValue2> Cast<TKey2, TValue2>()
+            => CastMergeJoinIteratorFn<IIterator<TKey2, TValue2>>.Instance(this);
 
-        public IIterator<TKey2, TValue2> Cast<TKey2, TValue2>()
-        {
-            return CastFn<IIterator<TKey2, TValue2>>.Instance(this);
-        }
-
-        public IIterator<JoinEntry<TLeftKey, TRightKey>, JoinEntry<TLeftValue, TRightValue>> Cast<TLeftKey, TRightKey, TLeftValue, TRightValue>()
-        {
-            return Cast<JoinEntry<TLeftKey, TRightKey>, JoinEntry<TLeftValue, TRightValue>>();
-        }
-
-        public bool MoveNext()
+        public override bool MoveNext()
         {
             if (this.isFirstMove)
             {
@@ -67,93 +55,104 @@
             }
         }
 
-        public IIterator<JoinEntry<byte[], byte[]>, JoinEntry<byte[], byte[]>> Range(
-            JoinEntry<byte[], byte[]> from,
-            JoinEntry<byte[], byte[]> to)
-        {
-            return new MergeJoinIterator(
-                this.left.Range(from.Left, to.Left),
-                this.right.Range(from.Right, to.Right));
-        }
-
-        public void Reset()
+        public override void Reset()
         {
             this.left.Reset();
             this.right.Reset();
         }
 
-        public IIterator<JoinEntry<byte[], byte[]>, JoinEntry<byte[], byte[]>> Reverse()
-        {
-            return new MergeJoinIterator(
+        public override IMergeJoinIterator<byte[], byte[], byte[], byte[]> Range(
+            byte[] fromLeft,
+            byte[] fromRight,
+            byte[] toLeft,
+            byte[] toRight)
+            => new MergeJoinIterator(
+                this.left.Range(fromLeft, toLeft),
+                this.right.Range(fromRight, toRight));
+
+        public override IMergeJoinIterator<byte[], byte[], byte[], byte[]> Reverse()
+            => new MergeJoinIterator(
                 this.left.Reverse(),
                 this.right.Reverse());
+
+        protected override void DisposeManagedDependencies()
+        {
+            this.left.Dispose();
+            this.right.Dispose();
         }
     }
 
-    internal sealed class MergeJoinIterator<TLeftKey, TRightKey, TLeftValue, TRightValue> : IMergeJoinIterator<TLeftKey, TRightKey, TLeftValue, TRightValue>
+    internal sealed class MergeJoinIterator<TK1, TK2, TV1, TV2> : AbstractMergeJoinIterator<TK1, TK2, TV1, TV2>
     {
-        private static readonly Marshaller<TLeftKey> leftKeyMarshaller = Marshallers<TLeftKey>.Instance;
-        private static readonly Marshaller<TRightKey> rightKeyMarshaller = Marshallers<TRightKey>.Instance;
-        private static readonly Marshaller<TLeftValue> leftValueMarshaller = Marshallers<TLeftValue>.Instance;
-        private static readonly Marshaller<TRightValue> rightValueMarshaller = Marshallers<TRightValue>.Instance;
+        private static readonly Marshaller<TK1> leftKeyMarshaller = Marshallers<TK1>.Instance;
+        private static readonly Marshaller<TK2> rightKeyMarshaller = Marshallers<TK2>.Instance;
+        private static readonly Marshaller<TV1> leftValueMarshaller = Marshallers<TV1>.Instance;
+        private static readonly Marshaller<TV2> rightValueMarshaller = Marshallers<TV2>.Instance;
 
-        private readonly IIterator<JoinEntry<byte[], byte[]>, JoinEntry<byte[], byte[]>> @delegate;
+        private readonly MergeJoinIterator @delegate;
 
-        public MergeJoinIterator(IIterator<JoinEntry<byte[], byte[]>, JoinEntry<byte[], byte[]>> @delegate)
+        public MergeJoinIterator(MergeJoinIterator @delegate)
         {
             this.@delegate = @delegate;
         }
 
-        public JoinEntry<TLeftKey, TRightKey> Key => JoinEntry.Of(
-            leftKeyMarshaller.FromBytes(this.@delegate.Current.Key.Left),
-            rightKeyMarshaller.FromBytes(this.@delegate.Current.Key.Right));
+        public override JoinEntry<TK1, TK2> Key
+            => JoinEntry.Of(
+                leftKeyMarshaller.FromBytes(this.@delegate.Current.Key.Left),
+                rightKeyMarshaller.FromBytes(this.@delegate.Current.Key.Right));
 
-        public JoinEntry<TLeftValue, TRightValue> Value => JoinEntry.Of(
-            leftValueMarshaller.FromBytes(this.@delegate.Current.Key.Left),
-            rightValueMarshaller.FromBytes(this.@delegate.Current.Key.Right));
+        public override JoinEntry<TV1, TV2> Value
+            => JoinEntry.Of(
+                leftValueMarshaller.FromBytes(this.@delegate.Current.Key.Left),
+                rightValueMarshaller.FromBytes(this.@delegate.Current.Key.Right));
 
-        object IEnumerator.Current => Current;
-        public KeyValuePair<JoinEntry<TLeftKey, TRightKey>, JoinEntry<TLeftValue, TRightValue>> Current =>
-            new KeyValuePair<JoinEntry<TLeftKey, TRightKey>, JoinEntry<TLeftValue, TRightValue>>(Key, Value);
+        public override IMergeJoinIterator<TTK1, TTK2, TTV1, TTV2> Cast<TTK1, TTK2, TTV1, TTV2>()
+            => this.@delegate.Cast<TTK1, TTK2, TTV1, TTV2>();
 
-        public IIterator<TKey2, TValue2> Cast<TKey2, TValue2>() =>
-            this.@delegate.Cast<TKey2, TValue2>();
-        public IIterator<JoinEntry<TLeftKey2, TRightKey2>, JoinEntry<TLeftValue2, TRightValue2>> Cast<TLeftKey2, TRightKey2, TLeftValue2, TRightValue2>() =>
-            this.@delegate.Cast<JoinEntry<TLeftKey2, TRightKey2>, JoinEntry<TLeftValue2, TRightValue2>>();
+        public override IIterator<TKey2, TValue2> Cast<TKey2, TValue2>()
+            => this.@delegate.Cast<TKey2, TValue2>();
 
-        public bool MoveNext() => this.@delegate.MoveNext();
+        public override bool MoveNext() => this.@delegate.MoveNext();
 
-        public IIterator<JoinEntry<TLeftKey, TRightKey>, JoinEntry<TLeftValue, TRightValue>> Range(
-            JoinEntry<TLeftKey, TRightKey> from,
-            JoinEntry<TLeftKey, TRightKey> to) =>
-            new MergeJoinIterator<TLeftKey, TRightKey, TLeftValue, TRightValue>(
-                this.@delegate.Range(
-                    JoinEntry.Of(leftKeyMarshaller.ToBytes(from.Left), rightKeyMarshaller.ToBytes(from.Right)),
-                    JoinEntry.Of(leftKeyMarshaller.ToBytes(to.Left), rightKeyMarshaller.ToBytes(to.Right))));
+        public override void Reset() => this.@delegate.Reset();
 
-        public IIterator<JoinEntry<TLeftKey, TRightKey>, JoinEntry<TLeftValue, TRightValue>> Reverse() =>
-            new MergeJoinIterator<TLeftKey, TRightKey, TLeftValue, TRightValue>(this.@delegate.Reverse());
+        public override IMergeJoinIterator<TK1, TK2, TV1, TV2> Range(
+            TK1 fromLeft,
+            TK2 fromRight,
+            TK1 toLeft,
+            TK2 toRight)
+            => this.@delegate
+                .Range(
+                    leftKeyMarshaller.ToBytes(fromLeft),
+                    rightKeyMarshaller.ToBytes(fromRight),
+                    leftKeyMarshaller.ToBytes(toLeft),
+                    rightKeyMarshaller.ToBytes(toRight))
+                .Cast<TK1, TK2, TV1, TV2>();
 
-        public void Reset() => this.@delegate.Reset();
-        public void Dispose() => this.@delegate.Dispose();
+        public override IMergeJoinIterator<TK1, TK2, TV1, TV2> Reverse()
+            => this.@delegate
+                .Reverse()
+                .Cast<TK1, TK2, TV1, TV2>();
+
+        protected override void DisposeManagedDependencies()
+            => this.@delegate.Dispose();
     }
 
-    internal class CastFn<TOutput> : GenericFunc4<Func<IIterator<JoinEntry<byte[], byte[]>, JoinEntry<byte[], byte[]>>, TOutput>>
+    internal class CastMergeJoinIteratorFn<TOutput> : GenericFunc4<Func<MergeJoinIterator, TOutput>>
     {
-        public static readonly Func<IIterator<JoinEntry<byte[], byte[]>, JoinEntry<byte[], byte[]>>, TOutput> Instance =
-            new CastFn<TOutput>().Call(
+        public static readonly Func<MergeJoinIterator, TOutput> Instance =
+            new CastMergeJoinIteratorFn<TOutput>().Call(
                 typeof(TOutput).GetGenericParentType(typeof(IIterator<,>)).GetGenericArguments()[0].GetGenericArguments()[0],
                 typeof(TOutput).GetGenericParentType(typeof(IIterator<,>)).GetGenericArguments()[0].GetGenericArguments()[1],
                 typeof(TOutput).GetGenericParentType(typeof(IIterator<,>)).GetGenericArguments()[1].GetGenericArguments()[0],
                 typeof(TOutput).GetGenericParentType(typeof(IIterator<,>)).GetGenericArguments()[1].GetGenericArguments()[1]);
 
-        protected override Func<IIterator<JoinEntry<byte[], byte[]>, JoinEntry<byte[], byte[]>>, TOutput> Call<TLeftKey, TRightKey, TLeftValue, TRightValue>()
+        protected override Func<MergeJoinIterator, TOutput> Call<TK1, TK2, TV1, TV2>()
         {
-            return (Func<IIterator<JoinEntry<byte[], byte[]>, JoinEntry<byte[], byte[]>>, TOutput>)
+            return (Func<MergeJoinIterator, TOutput>)
                    (Delegate)
-                   new Func<IIterator<JoinEntry<byte[],   byte[]>,    JoinEntry<byte[],     byte[]>>,
-                            IIterator<JoinEntry<TLeftKey, TRightKey>, JoinEntry<TLeftValue, TRightValue>>>(
-                       iterator => new MergeJoinIterator<TLeftKey, TRightKey, TLeftValue, TRightValue>(iterator));
+                   new Func<MergeJoinIterator, IIterator<JoinEntry<TK1, TK2>, JoinEntry<TV1, TV2>>>(
+                       iterator => new MergeJoinIterator<TK1, TK2, TV1, TV2>(iterator));
         }
     }
 }
