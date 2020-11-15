@@ -33,7 +33,7 @@ namespace Triangle.LevelDB.Iterators
 
         internal override int CompareKeys(byte[] a, byte[] b) => -base.CompareKeys(a, b);
 
-        public override IIterator Reverse() => delegateIterator;
+        public override IIterator Reverse() => this.delegateIterator;
         public override IIterator Range(byte[] from, byte[] to) => new RangeIterator(this, from, to);
     }
 }

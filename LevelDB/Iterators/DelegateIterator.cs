@@ -9,22 +9,22 @@ namespace Triangle.LevelDB.Iterators
             this.delegateIterator = delegateIterator;
         }
 
-        public override byte[] Key => delegateIterator.Key;
-        public override byte[] Value => delegateIterator.Value;
+        public override byte[] Key => this.delegateIterator.Key;
+        public override byte[] Value => this.delegateIterator.Value;
 
-        public override IIterator Reverse() => delegateIterator.Reverse();
-        public override IIterator Range(byte[] from, byte[] to) => delegateIterator.Range(from, to);
+        public override IIterator Reverse() => this.delegateIterator.Reverse();
+        public override IIterator Range(byte[] from, byte[] to) => this.delegateIterator.Range(from, to);
 
-        internal override bool IsValid => delegateIterator.IsValid;
+        internal override bool IsValid => this.delegateIterator.IsValid;
 
-        internal override void Next() => delegateIterator.Next();
-        internal override void Previous() => delegateIterator.Previous();
+        internal override void Next() => this.delegateIterator.Next();
+        internal override void Previous() => this.delegateIterator.Previous();
 
-        internal override IIterator Seek(byte[] key) => delegateIterator.Seek(key);
-        internal override IIterator SeekToFirst() => delegateIterator.SeekToFirst();
-        internal override IIterator SeekToLast() => delegateIterator.SeekToLast();
-        internal override int CompareKeys(byte[] a, byte[] b) => delegateIterator.CompareKeys(a, b);
+        internal override IIterator Seek(byte[] key) => this.delegateIterator.Seek(key);
+        internal override IIterator SeekToFirst() => this.delegateIterator.SeekToFirst();
+        internal override IIterator SeekToLast() => this.delegateIterator.SeekToLast();
+        internal override int CompareKeys(byte[] a, byte[] b) => this.delegateIterator.CompareKeys(a, b);
 
-        protected override void DisposeManagedDependencies() => delegateIterator.Dispose();
+        protected override void DisposeManagedDependencies() => this.delegateIterator.Dispose();
     }
 }

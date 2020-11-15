@@ -9,8 +9,7 @@ namespace Triangle.LevelDB.Iterables
             this.delegateIterable = delegateIterable;
         }
 
-        internal sealed override DB DB => delegateIterable.DB;
-
-        internal sealed override ReadOptions ReadOptions => delegateIterable.ReadOptions;
+        internal sealed override DB DB => this.delegateIterable.DB;
+        internal sealed override ReadOptions ReadOptions => this.delegateIterable.ReadOptions;
     }
 }

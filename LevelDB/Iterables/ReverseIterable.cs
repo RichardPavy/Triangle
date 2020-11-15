@@ -12,9 +12,9 @@ namespace Triangle.LevelDB.Iterables
         }
 
         public override IIterable<byte[], byte[]> Prefix(byte[] prefix) =>
-            delegateIterable.Prefix(prefix).Reverse();
+            this.delegateIterable.Prefix(prefix).Reverse();
 
         public override IIterator GetIterator() =>
-            delegateIterable.GetIterator().Reverse();
+            this.delegateIterable.GetIterator().Reverse();
     }
 }

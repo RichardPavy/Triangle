@@ -16,6 +16,7 @@ namespace Triangle.LevelDB.Iterables
             this.to = to;
         }
 
-        public override IIterator GetIterator() => delegateIterable.GetIterator().Range(this.from, this.to);
+        public override IIterator GetIterator()
+            => this.delegateIterable.GetIterator().Range(this.from, this.to);
     }
 }
