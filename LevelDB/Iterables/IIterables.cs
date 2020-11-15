@@ -48,5 +48,17 @@ namespace Triangle.LevelDB.Iterables
                 }
             }
         }
+
+        public static IMergeJoinIterable<TK1, TK2, TV1, TV2> Join2<TK1, TV1, TK2, TV2>(
+            this Tuple<IIterable<TK1, TV1>, IIterable<TK2, TV2>> pair,
+            int leftPrefixLength,
+            int rightPrefixLength)
+        {
+            return new MergeJoinIterable(
+                    new Iterators.MergeJoinIterator.KeyComparer(leftPrefixLength, rightPrefixLength),
+                    pair.Item1.Cast<byte[], byte[]>(),
+                    pair.Item2.Cast<byte[], byte[]>())
+                .Cast<TK1, TK2, TV1, TV2>();
+        }
     }
 }

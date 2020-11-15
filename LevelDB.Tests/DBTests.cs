@@ -102,24 +102,39 @@ namespace Triangle.LevelDB.Tests
             children.Put(new Child(1, 12), "asecond");
             children.Put(new Child(2, 21), "afirst");
             children.Put(new Child(2, 22), "asecond");
-            var join =
-                from parent
-                    in parents.GetIterable().Range(new Parent(1), new Parent(3))
-                join child
-                    in children.GetIterable().Range(new Child(1, 1), new Child(3, 1))
-                    on parent.Key.parentId equals child.Key.parentId
-                select $"[{parent.Value} => {child.Key.parentId}:{child.Key.childId}:{child.Value}]";
-            Assert.Equal(
-                "[aaa => 1:11:afirst]; [aaa => 1:12:asecond]; [bbb => 2:21:afirst]; [bbb => 2:22:asecond]",
-                string.Join("; ", join));
-            IEnumerable<KeyValuePair<Tuple<Parent, Child>, Tuple<string, string>>> streamJoin =
-                parents.GetIterable().Range(new Parent(1), new Parent(3))
-                    .Join(
-                        children.GetIterable().Range(new Child(1, 1), new Child(3, 1)),
-                        (k1, k2) => k1.parentId.CompareTo(k2.parentId));
-            Assert.Equal(
-                "1/11 => aaa/afirst; 1/12 => aaa/asecond; 2/21 => bbb/afirst; 2/22 => bbb/asecond",
-                string.Join("; ", streamJoin.Select(row => $"{row.Key.Item1.parentId}/{row.Key.Item2.childId} => {row.Value.Item1}/{row.Value.Item2}")));
+
+            {
+                var join =
+                    from parent
+                        in parents.GetIterable().Range(new Parent(1), new Parent(3))
+                    join child
+                        in children.GetIterable().Range(new Child(1, 1), new Child(3, 1))
+                        on parent.Key.parentId equals child.Key.parentId
+                    select $"[{parent.Value} => {child.Key.parentId}:{child.Key.childId}:{child.Value}]";
+                Assert.Equal(
+                    "[aaa => 1:11:afirst]; [aaa => 1:12:asecond]; [bbb => 2:21:afirst]; [bbb => 2:22:asecond]",
+                    string.Join("; ", join));
+            }
+            {
+                IEnumerable<KeyValuePair<Tuple<Parent, Child>, Tuple<string, string>>> streamJoin =
+                    parents.GetIterable().Range(new Parent(1), new Parent(3))
+                        .Join(
+                            children.GetIterable().Range(new Child(1, 1), new Child(3, 1)),
+                            (k1, k2) => k1.parentId.CompareTo(k2.parentId));
+                Assert.Equal(
+                    "1/11 => aaa/afirst; 1/12 => aaa/asecond; 2/21 => bbb/afirst; 2/22 => bbb/asecond",
+                    string.Join("; ", streamJoin.Select(row => $"{row.Key.Item1.parentId}/{row.Key.Item2.childId} => {row.Value.Item1}/{row.Value.Item2}")));
+            }
+            {
+                IMergeJoinIterable<Parent, Child, string, string> streamJoin =
+                    Tuple.Create(
+                        parents.GetIterable().Range(new Parent(1), new Parent(3)),
+                        children.GetIterable().Range(new Child(1, 1), new Child(3, 1)))
+                    .Join2(sizeof(int), sizeof(int));
+                Assert.Equal(
+                    "1/11 => aaa/afirst; 1/12 => aaa/asecond; 2/21 => bbb/afirst; 2/22 => bbb/asecond",
+                    string.Join("; ", streamJoin.Select(row => $"{row.Key.Left.parentId}/{row.Key.Right.childId} => {row.Value.Left}/{row.Value.Right}")));
+            }
         }
 
         struct Parent

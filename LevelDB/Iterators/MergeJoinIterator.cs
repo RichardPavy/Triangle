@@ -7,12 +7,46 @@
 
     internal class MergeJoinIterator : AbstractMergeJoinIterator<byte[], byte[], byte[], byte[]>
     {
-        private readonly IIterator left;
-        private readonly IIterator right;
+        internal sealed class KeyComparer
+        {
+            private readonly int sign;
+            private readonly int leftPrefixLength;
+            private readonly int rightPrefixLength;
+
+            public KeyComparer(int leftPrefixLength, int rightPrefixLength) : this(1, leftPrefixLength, rightPrefixLength)
+            {
+            }
+
+            private KeyComparer(int sign, int leftPrefixLength, int rightPrefixLength)
+            {
+                this.sign = sign;
+                this.leftPrefixLength = leftPrefixLength;
+                this.rightPrefixLength = rightPrefixLength;
+            }
+
+            public KeyComparer Reverse()
+            {
+                return new KeyComparer(-this.sign, this.leftPrefixLength, this.rightPrefixLength);
+            }
+
+            public int Compare(byte[] left, byte[] right)
+            {
+                return this.sign *
+                    left.AsSpan().Slice(this.leftPrefixLength).SequenceCompareTo(
+                    right.AsSpan().Slice(this.rightPrefixLength));
+            }
+        }
+
+        private readonly KeyComparer keyComparer;
+        private readonly IIterator<byte[], byte[]> left;
+        private readonly IIterator<byte[], byte[]> right;
         private bool isFirstMove = true;
 
-        public MergeJoinIterator(IIterator left, IIterator right)
+        public MergeJoinIterator(
+            KeyComparer keyComparer,
+            IIterator<byte[], byte[]> left, IIterator<byte[], byte[]> right)
         {
+            this.keyComparer = keyComparer;
             this.left = left;
             this.right = right;
         }
@@ -38,8 +72,7 @@
             {
                 byte[] leftKey = this.left.Key;
                 byte[] rightKey = this.right.Key;
-                int length = Math.Min(leftKey.Length, rightKey.Length);
-                int comparison = this.left.Key.AsSpan().SequenceCompareTo(this.right.Key.AsSpan().Slice(0, length));
+                int comparison = keyComparer.Compare(leftKey, rightKey);
                 if (comparison == 0)
                 {
                     return true;
@@ -67,11 +100,13 @@
             byte[] toLeft,
             byte[] toRight)
             => new MergeJoinIterator(
+                this.keyComparer,
                 this.left.Range(fromLeft, toLeft),
                 this.right.Range(fromRight, toRight));
 
         public override IMergeJoinIterator<byte[], byte[], byte[], byte[]> Reverse()
             => new MergeJoinIterator(
+                this.keyComparer.Reverse(),
                 this.left.Reverse(),
                 this.right.Reverse());
 

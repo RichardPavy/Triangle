@@ -14,7 +14,10 @@ namespace Triangle.LevelDB.Iterables
         IEnumerator IEnumerable.GetEnumerator() => GetIterator();
         public IIterable Range(byte[] from, byte[] to) => new RangeIterable(this, from, to);
         public IIterable Reverse() => new ReverseIterable(this);
-        public IIterable<TKey, TValue> Cast<TKey, TValue>() => new Iterable<TKey, TValue>(this);
+        public IIterable<TKey, TValue> Cast<TKey, TValue>() =>
+            typeof(IIterable<TKey, TValue>) == typeof(IIterable<byte[], byte[]>)
+                ? (IIterable<TKey, TValue>) this
+                : new Iterable<TKey, TValue>(this);
 
         public virtual IIterable<byte[], byte[]> Prefix(byte[] prefix)
         {

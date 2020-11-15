@@ -8,22 +8,29 @@ namespace Triangle.LevelDB.Iterables
 
     public sealed class MergeJoinIterable : AbstractMergeJoinIterable<byte[], byte[], byte[], byte[]>
     {
-        private readonly IIterable left;
-        private readonly IIterable right;
+        private readonly MergeJoinIterator.KeyComparer keyComparer;
+        private readonly IIterable<byte[], byte[]> left;
+        private readonly IIterable<byte[], byte[]> right;
 
-        internal MergeJoinIterable(IIterable left, IIterable right)
+        internal MergeJoinIterable(
+            MergeJoinIterator.KeyComparer keyComparer,
+            IIterable<byte[], byte[]> left,
+            IIterable<byte[], byte[]> right)
         {
+            this.keyComparer = keyComparer;
             this.left = left;
             this.right = right;
         }
 
         public override IMergeJoinIterator<byte[], byte[], byte[], byte[]> GetIterator()
             => new MergeJoinIterator(
+                this.keyComparer,
                 this.left.GetIterator(),
                 this.right.GetIterator());
 
         public override IMergeJoinIterable<byte[], byte[], byte[], byte[]> Reverse()
             => new MergeJoinIterable(
+                this.keyComparer.Reverse(),
                 this.left.Reverse(),
                 this.right.Reverse());
 
@@ -33,6 +40,7 @@ namespace Triangle.LevelDB.Iterables
             byte[] toLeft,
             byte[] toRight)
             => new MergeJoinIterable(
+                this.keyComparer,
                 this.left.Range(fromLeft, toLeft),
                 this.right.Range(fromRight, toRight));
 
@@ -40,6 +48,7 @@ namespace Triangle.LevelDB.Iterables
             byte[] prefixLeft,
             byte[] prefixRight)
             => new MergeJoinIterable(
+                this.keyComparer,
                 this.left.Prefix(prefixLeft),
                 this.right.Prefix(prefixRight));
 
