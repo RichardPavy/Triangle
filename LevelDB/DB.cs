@@ -26,11 +26,11 @@ namespace Triangle.LevelDB
 
         public void Dispose()
         {
-            if (isDisposed)
+            if (this.isDisposed)
             {
                 return;
             }
-            isDisposed = true;
+            this.isDisposed = true;
 
             this.options = null;
             if (Handle != IntPtr.Zero)
@@ -252,7 +252,7 @@ namespace Triangle.LevelDB
 
         private void CheckDisposed()
         {
-            if (isDisposed)
+            if (this.isDisposed)
             {
                 throw new ObjectDisposedException(this.GetType().Name);
             }
@@ -272,7 +272,7 @@ namespace Triangle.LevelDB
             this.db = db;
         }
 
-        public void Dispose() => db.Dispose();
+        public void Dispose() => this.db.Dispose();
 
         public TValue this[TKey key]
         {
@@ -288,25 +288,25 @@ namespace Triangle.LevelDB
 
         public DB<TKey, TValue> Put(TKey key, TValue value)
         {
-            db.Put(keyMarshaller.ToBytes(key), valueMarshaller.ToBytes(value));
+            this.db.Put(this.keyMarshaller.ToBytes(key), this.valueMarshaller.ToBytes(value));
             return this;
         }
 
         public DB<TKey, TValue> Put(WriteOptions writeOptions, TKey key, TValue value)
         {
-            db.Put(writeOptions, keyMarshaller.ToBytes(key), valueMarshaller.ToBytes(value));
+            this.db.Put(writeOptions, this.keyMarshaller.ToBytes(key), this.valueMarshaller.ToBytes(value));
             return this;
         }
 
         public DB<TKey, TValue> Delete(TKey key)
         {
-            db.Delete(keyMarshaller.ToBytes(key));
+            this.db.Delete(this.keyMarshaller.ToBytes(key));
             return this;
         }
 
         public DB<TKey, TValue> Delete(WriteOptions writeOptions, TKey key)
         {
-            db.Delete(writeOptions, keyMarshaller.ToBytes(key));
+            this.db.Delete(writeOptions, this.keyMarshaller.ToBytes(key));
             return this;
         }
 
@@ -322,46 +322,46 @@ namespace Triangle.LevelDB
 
         public TValue Get(TKey key)
         {
-            return valueMarshaller.FromBytes(db.Get(keyMarshaller.ToBytes(key)));
+            return this.valueMarshaller.FromBytes(this.db.Get(this.keyMarshaller.ToBytes(key)));
         }
 
         public TValue Get(ReadOptions readOptions, TKey key)
         {
-            return valueMarshaller.FromBytes(db.Get(readOptions, keyMarshaller.ToBytes(key)));
+            return this.valueMarshaller.FromBytes(this.db.Get(readOptions, this.keyMarshaller.ToBytes(key)));
         }
 
         public IIterable<TKey, TValue> GetIterable()
         {
-            return db.GetIterable().Cast<TKey, TValue>();
+            return this.db.GetIterable().Cast<TKey, TValue>();
         }
 
         public IIterable<TKey, TValue> GetIterable(ReadOptions readOptions)
         {
-            return db.GetIterable(readOptions).Cast<TKey, TValue>();
+            return this.db.GetIterable(readOptions).Cast<TKey, TValue>();
         }
 
         public Snapshot CreateSnapshot()
         {
-            return db.CreateSnapshot();
+            return this.db.CreateSnapshot();
         }
 
         public DB<TKey, TValue> Compact()
         {
-            db.Compact();
+            this.db.Compact();
             return this;
         }
 
         public DB<TKey, TValue> CompactRange(TKey startKey, TKey limitKey)
         {
-            db.CompactRange(keyMarshaller.ToBytes(startKey), keyMarshaller.ToBytes(limitKey));
+            this.db.CompactRange(this.keyMarshaller.ToBytes(startKey), this.keyMarshaller.ToBytes(limitKey));
             return this;
         }
 
         public string GetProperty(string property)
         {
-            return db.GetProperty(property);
+            return this.db.GetProperty(property);
         }
         
-        public DB<TKey2, TValue2> Cast<TKey2, TValue2>() => new DB<TKey2, TValue2>(db);
+        public DB<TKey2, TValue2> Cast<TKey2, TValue2>() => new DB<TKey2, TValue2>(this.db);
    }
 }
