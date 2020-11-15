@@ -29,11 +29,11 @@
                 return new KeyComparer(-this.sign, this.leftPrefixLength, this.rightPrefixLength);
             }
 
-            public int Compare(byte[] left, byte[] right)
+            public int Compare(byte[] leftKey, byte[] rightKey)
             {
                 return this.sign *
-                    left.AsSpan().Slice(this.leftPrefixLength).SequenceCompareTo(
-                    right.AsSpan().Slice(this.rightPrefixLength));
+                    leftKey.AsSpan().Slice(this.leftPrefixLength).SequenceCompareTo(
+                    rightKey.AsSpan().Slice(this.rightPrefixLength, leftKey.Length - this.leftPrefixLength));
             }
         }
 
@@ -63,16 +63,19 @@
         {
             if (this.isFirstMove)
             {
-                if (!this.left.MoveNext() || !this.right.MoveNext())
+                if (!this.left.MoveNext())
                     return false;
                 this.isFirstMove = false;
             }
+
+            if (!this.right.MoveNext())
+                return false;
 
             while (true)
             {
                 byte[] leftKey = this.left.Key;
                 byte[] rightKey = this.right.Key;
-                int comparison = keyComparer.Compare(leftKey, rightKey);
+                int comparison = this.keyComparer.Compare(leftKey, rightKey);
                 if (comparison == 0)
                 {
                     return true;
@@ -138,8 +141,8 @@
 
         public override JoinEntry<TV1, TV2> Value
             => JoinEntry.Of(
-                leftValueMarshaller.FromBytes(this.@delegate.Current.Key.Left),
-                rightValueMarshaller.FromBytes(this.@delegate.Current.Key.Right));
+                leftValueMarshaller.FromBytes(this.@delegate.Current.Value.Left),
+                rightValueMarshaller.FromBytes(this.@delegate.Current.Value.Right));
 
         public override IMergeJoinIterator<TTK1, TTK2, TTV1, TTV2> Cast<TTK1, TTK2, TTV1, TTV2>()
             => this.@delegate.Cast<TTK1, TTK2, TTV1, TTV2>();

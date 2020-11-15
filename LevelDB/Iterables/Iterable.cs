@@ -1,5 +1,6 @@
 namespace Triangle.LevelDB.Iterables
 {
+    using System;
     using System.Collections;
     using System.Collections.Generic;
     using Triangle.LevelDB.Iterators;
@@ -29,6 +30,10 @@ namespace Triangle.LevelDB.Iterables
 
         internal Iterable(IIterable delegateIterable)
         {
+            if (typeof(TKey) == typeof(byte[]) || typeof(TValue) == typeof(byte[]))
+            {
+                throw new ArgumentException($"Creating a {nameof(Iterable<TKey, TValue>)}<{typeof(TKey)}, {typeof(TValue)}>");
+            }
             this.delegateIterable = delegateIterable;
         }
 
