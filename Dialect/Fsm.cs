@@ -94,19 +94,12 @@
                     MapState(transition.FsmState, charFn, map)));
             }
 
-            return result;
-        }
-
-        public struct Transition
-        {
-            public readonly TChar Char;
-            public readonly FsmState FsmState;
-
-            public Transition(TChar @char, FsmState fsmState)
+            foreach (var epsTransition in from.EpsTransitions)
             {
-                this.Char = @char;
-                this.FsmState = fsmState;
+                result.EpsTransitions.Add(MapState(epsTransition, charFn, map));
             }
+
+            return result;
         }
     }
 }
