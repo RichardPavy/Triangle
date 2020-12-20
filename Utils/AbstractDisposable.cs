@@ -8,7 +8,7 @@
 
         protected virtual void Dispose(bool disposing)
         {
-            if (!disposedValue)
+            if (!this.disposedValue)
             {
                 if (disposing)
                 {
@@ -16,7 +16,7 @@
                 }
 
                 DisposeUnmanagedDependencies();
-                disposedValue = true;
+                this.disposedValue = true;
             }
         }
 
